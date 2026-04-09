@@ -26,13 +26,10 @@
       width: 96px;
       height: 96px;
       border-radius: 22px;
-      background: #1a1a1a;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
       margin-bottom: 24px;
-      font-size: 42px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      overflow: hidden;
     }
     h1 {
       font-size: 48px;
@@ -141,7 +138,21 @@
 
 <!-- Hero -->
 <section class="hero">
-  <div class="app-icon">💳</div>
+  <div class="app-icon">
+    <svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="iconBg" x1="0.5" y1="0" x2="0.5" y2="1">
+          <stop offset="0%" stop-color="#E08060"/>
+          <stop offset="100%" stop-color="#C06840"/>
+        </linearGradient>
+      </defs>
+      <rect width="96" height="96" fill="url(#iconBg)"/>
+      <text x="50" y="72"
+        font-family="-apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif"
+        font-size="70" font-weight="200" fill="rgba(255,255,255,0.92)"
+        text-anchor="middle" letter-spacing="-2">m</text>
+    </svg>
+  </div>
   <h1>moniq</h1>
   <p class="tagline">A local-first finance app for logging income and expenses, tracking recurring transactions, and understanding your spending.</p>
   <a href="#" class="cta">Download on the App Store</a>
