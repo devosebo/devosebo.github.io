@@ -7,12 +7,51 @@
   <meta name="description" content="moniq is a local-first finance app for quickly logging income and expenses, managing recurring transactions, and reviewing spending insights.">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg-alt: #f7f7f7;
+      --text: #1a1a1a;
+      --text-secondary: #555;
+      --text-muted: #aaa;
+      --card-bg: #ffffff;
+      --card-border: transparent;
+      --pill-bg: #f0f0f0;
+      --pill-text: #444;
+      --footer-border: #eee;
+      --cta-bg: #1a1a1a;
+      --cta-text: #ffffff;
+      --icon-top: #E08060;
+      --icon-bottom: #C06840;
+      --icon-m: rgba(255,255,255,0.92);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111111;
+        --bg-alt: #1a1a1a;
+        --text: #f0f0f0;
+        --text-secondary: #aaa;
+        --text-muted: #666;
+        --card-bg: #222222;
+        --card-border: #2e2e2e;
+        --pill-bg: #2a2a2a;
+        --pill-text: #ccc;
+        --footer-border: #2e2e2e;
+        --cta-bg: #E08060;
+        --cta-text: #ffffff;
+        --icon-top: #1E1612;
+        --icon-bottom: #2A1E16;
+        --icon-m: #D97757;
+      }
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       font-size: 16px;
       line-height: 1.7;
-      color: #1a1a1a;
-      background: #fff;
+      color: var(--text);
+      background: var(--bg);
     }
 
     /* Hero */
@@ -28,7 +67,7 @@
       border-radius: 22px;
       display: inline-block;
       margin-bottom: 24px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
       overflow: hidden;
     }
     h1 {
@@ -39,7 +78,7 @@
     }
     .tagline {
       font-size: 20px;
-      color: #555;
+      color: var(--text-secondary);
       margin-bottom: 36px;
       max-width: 480px;
       margin-left: auto;
@@ -47,8 +86,8 @@
     }
     .cta {
       display: inline-block;
-      background: #1a1a1a;
-      color: #fff;
+      background: var(--cta-bg);
+      color: var(--cta-text);
       padding: 14px 32px;
       border-radius: 100px;
       font-size: 16px;
@@ -59,13 +98,13 @@
     .cta:hover { opacity: 0.8; }
     .cta-note {
       font-size: 13px;
-      color: #aaa;
+      color: var(--text-muted);
       margin-top: 12px;
     }
 
     /* Features */
     .features {
-      background: #f7f7f7;
+      background: var(--bg-alt);
       padding: 64px 24px;
     }
     .features-inner {
@@ -88,13 +127,14 @@
       h1 { font-size: 36px; }
     }
     .feature-card {
-      background: #fff;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 24px;
     }
     .feature-icon { font-size: 28px; margin-bottom: 10px; }
     .feature-title { font-weight: 600; margin-bottom: 4px; }
-    .feature-desc { font-size: 14px; color: #666; line-height: 1.5; }
+    .feature-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
 
     /* Privacy callout */
     .privacy-callout {
@@ -104,20 +144,20 @@
       text-align: center;
     }
     .privacy-callout h2 { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
-    .privacy-callout p { color: #555; max-width: 480px; margin: 0 auto 24px; }
+    .privacy-callout p { color: var(--text-secondary); max-width: 480px; margin: 0 auto 24px; }
     .pill {
       display: inline-block;
-      background: #f0f0f0;
+      background: var(--pill-bg);
       border-radius: 100px;
       padding: 6px 16px;
       font-size: 14px;
-      color: #444;
+      color: var(--pill-text);
       margin: 4px;
     }
 
     /* Footer */
     footer {
-      border-top: 1px solid #eee;
+      border-top: 1px solid var(--footer-border);
       padding: 32px 24px;
       max-width: 680px;
       margin: 0 auto;
@@ -125,12 +165,12 @@
       justify-content: space-between;
       align-items: center;
       font-size: 14px;
-      color: #aaa;
+      color: var(--text-muted);
       flex-wrap: wrap;
       gap: 12px;
     }
-    footer a { color: #aaa; text-decoration: none; }
-    footer a:hover { color: #333; }
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
     .footer-links { display: flex; gap: 20px; }
   </style>
 </head>
@@ -142,14 +182,15 @@
     <svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="iconBg" x1="0.5" y1="0" x2="0.5" y2="1">
-          <stop offset="0%" stop-color="#E08060"/>
-          <stop offset="100%" stop-color="#C06840"/>
+          <stop offset="0%" style="stop-color: var(--icon-top)"/>
+          <stop offset="100%" style="stop-color: var(--icon-bottom)"/>
         </linearGradient>
       </defs>
       <rect width="96" height="96" fill="url(#iconBg)"/>
       <text x="50" y="72"
         font-family="-apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif"
-        font-size="70" font-weight="200" fill="rgba(255,255,255,0.92)"
+        font-size="70" font-weight="200"
+        style="fill: var(--icon-m)"
         text-anchor="middle" letter-spacing="-2">m</text>
     </svg>
   </div>
