@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>moniq – Personal Finance Tracker</title>
   <meta name="description" content="moniq is a local-first finance app for quickly logging income and expenses, managing recurring transactions, and reviewing spending insights.">
+  <script>
+    // Apply saved theme before paint to avoid flash
+    const saved = localStorage.getItem('moniq-theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -24,151 +29,72 @@
       --icon-top: #E08060;
       --icon-bottom: #C06840;
       --icon-m: rgba(255,255,255,0.92);
+      --toggle-bg: #f0f0f0;
+      --toggle-border: #ddd;
     }
-
     @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #111111;
-        --bg-alt: #1a1a1a;
-        --text: #f0f0f0;
-        --text-secondary: #aaa;
-        --text-muted: #666;
-        --card-bg: #222222;
-        --card-border: #2e2e2e;
-        --pill-bg: #2a2a2a;
-        --pill-text: #ccc;
-        --footer-border: #2e2e2e;
-        --cta-bg: #E08060;
-        --cta-text: #ffffff;
-        --icon-top: #1E1612;
-        --icon-bottom: #2A1E16;
-        --icon-m: #D97757;
+      :root:not([data-theme="light"]) {
+        --bg: #111111; --bg-alt: #1a1a1a; --text: #f0f0f0; --text-secondary: #aaa;
+        --text-muted: #666; --card-bg: #222222; --card-border: #2e2e2e;
+        --pill-bg: #2a2a2a; --pill-text: #ccc; --footer-border: #2e2e2e;
+        --cta-bg: #E08060; --cta-text: #ffffff;
+        --icon-top: #1E1612; --icon-bottom: #2A1E16; --icon-m: #D97757;
+        --toggle-bg: #2a2a2a; --toggle-border: #3a3a3a;
       }
     }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.7;
-      color: var(--text);
-      background: var(--bg);
+    html[data-theme="dark"] {
+      --bg: #111111; --bg-alt: #1a1a1a; --text: #f0f0f0; --text-secondary: #aaa;
+      --text-muted: #666; --card-bg: #222222; --card-border: #2e2e2e;
+      --pill-bg: #2a2a2a; --pill-text: #ccc; --footer-border: #2e2e2e;
+      --cta-bg: #E08060; --cta-text: #ffffff;
+      --icon-top: #1E1612; --icon-bottom: #2A1E16; --icon-m: #D97757;
+      --toggle-bg: #2a2a2a; --toggle-border: #3a3a3a;
+    }
+    html[data-theme="light"] {
+      --bg: #ffffff; --bg-alt: #f7f7f7; --text: #1a1a1a; --text-secondary: #555;
+      --text-muted: #aaa; --card-bg: #ffffff; --card-border: transparent;
+      --pill-bg: #f0f0f0; --pill-text: #444; --footer-border: #eee;
+      --cta-bg: #1a1a1a; --cta-text: #ffffff;
+      --icon-top: #E08060; --icon-bottom: #C06840; --icon-m: rgba(255,255,255,0.92);
+      --toggle-bg: #f0f0f0; --toggle-border: #ddd;
     }
 
-    /* Hero */
-    .hero {
-      padding: 80px 24px 64px;
-      max-width: 680px;
-      margin: 0 auto;
-      text-align: center;
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.7; color: var(--text); background: var(--bg); }
+
+    /* Toggle */
+    #theme-toggle {
+      position: fixed; top: 16px; right: 16px; z-index: 100;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--toggle-border); background: var(--toggle-bg);
+      cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
     }
-    .app-icon {
-      width: 96px;
-      height: 96px;
-      border-radius: 22px;
-      display: inline-block;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
-      overflow: hidden;
-    }
-    h1 {
-      font-size: 48px;
-      font-weight: 700;
-      letter-spacing: -1px;
-      margin-bottom: 12px;
-    }
-    .tagline {
-      font-size: 20px;
-      color: var(--text-secondary);
-      margin-bottom: 36px;
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .cta {
-      display: inline-block;
-      background: var(--cta-bg);
-      color: var(--cta-text);
-      padding: 14px 32px;
-      border-radius: 100px;
-      font-size: 16px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: opacity 0.15s;
-    }
+    #theme-toggle:hover { opacity: 0.8; }
+
+    .hero { padding: 80px 24px 64px; max-width: 680px; margin: 0 auto; text-align: center; }
+    .app-icon { width: 96px; height: 96px; border-radius: 22px; display: inline-block; margin-bottom: 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.25); overflow: hidden; }
+    h1 { font-size: 48px; font-weight: 700; letter-spacing: -1px; margin-bottom: 12px; }
+    .tagline { font-size: 20px; color: var(--text-secondary); margin-bottom: 36px; max-width: 480px; margin-left: auto; margin-right: auto; }
+    .cta { display: inline-block; background: var(--cta-bg); color: var(--cta-text); padding: 14px 32px; border-radius: 100px; font-size: 16px; font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
     .cta:hover { opacity: 0.8; }
-    .cta-note {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 12px;
-    }
+    .cta-note { font-size: 13px; color: var(--text-muted); margin-top: 12px; }
 
-    /* Features */
-    .features {
-      background: var(--bg-alt);
-      padding: 64px 24px;
-    }
-    .features-inner {
-      max-width: 680px;
-      margin: 0 auto;
-    }
-    .features h2 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 32px;
-      text-align: center;
-    }
-    .feature-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    @media (max-width: 480px) {
-      .feature-grid { grid-template-columns: 1fr; }
-      h1 { font-size: 36px; }
-    }
-    .feature-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 24px;
-    }
+    .features { background: var(--bg-alt); padding: 64px 24px; }
+    .features-inner { max-width: 680px; margin: 0 auto; }
+    .features h2 { font-size: 24px; font-weight: 700; margin-bottom: 32px; text-align: center; }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 480px) { .feature-grid { grid-template-columns: 1fr; } h1 { font-size: 36px; } }
+    .feature-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 24px; }
     .feature-icon { font-size: 28px; margin-bottom: 10px; }
     .feature-title { font-weight: 600; margin-bottom: 4px; }
     .feature-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
 
-    /* Privacy callout */
-    .privacy-callout {
-      padding: 64px 24px;
-      max-width: 680px;
-      margin: 0 auto;
-      text-align: center;
-    }
+    .privacy-callout { padding: 64px 24px; max-width: 680px; margin: 0 auto; text-align: center; }
     .privacy-callout h2 { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
     .privacy-callout p { color: var(--text-secondary); max-width: 480px; margin: 0 auto 24px; }
-    .pill {
-      display: inline-block;
-      background: var(--pill-bg);
-      border-radius: 100px;
-      padding: 6px 16px;
-      font-size: 14px;
-      color: var(--pill-text);
-      margin: 4px;
-    }
+    .pill { display: inline-block; background: var(--pill-bg); border-radius: 100px; padding: 6px 16px; font-size: 14px; color: var(--pill-text); margin: 4px; }
 
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--footer-border);
-      padding: 32px 24px;
-      max-width: 680px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-      color: var(--text-muted);
-      flex-wrap: wrap;
-      gap: 12px;
-    }
+    footer { border-top: 1px solid var(--footer-border); padding: 32px 24px; max-width: 680px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--text-muted); flex-wrap: wrap; gap: 12px; }
     footer a { color: var(--text-muted); text-decoration: none; }
     footer a:hover { color: var(--text); }
     .footer-links { display: flex; gap: 20px; }
@@ -176,7 +102,8 @@
 </head>
 <body>
 
-<!-- Hero -->
+<button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color scheme"></button>
+
 <section class="hero">
   <div class="app-icon">
     <svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
@@ -187,11 +114,7 @@
         </linearGradient>
       </defs>
       <rect width="96" height="96" fill="url(#iconBg)"/>
-      <text x="50" y="72"
-        font-family="-apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif"
-        font-size="70" font-weight="200"
-        style="fill: var(--icon-m)"
-        text-anchor="middle" letter-spacing="-2">m</text>
+      <text x="50" y="72" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif" font-size="70" font-weight="200" style="fill: var(--icon-m)" text-anchor="middle" letter-spacing="-2">m</text>
     </svg>
   </div>
   <h1>moniq</h1>
@@ -200,36 +123,18 @@
   <p class="cta-note">Coming soon to the App Store</p>
 </section>
 
-<!-- Features -->
 <section class="features">
   <div class="features-inner">
     <h2>Everything you need, nothing you don't</h2>
     <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-icon">⚡️</div>
-        <div class="feature-title">Quick Logging</div>
-        <div class="feature-desc">Add transactions in seconds. Tap, categorize, done.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔁</div>
-        <div class="feature-title">Recurring Transactions</div>
-        <div class="feature-desc">Track subscriptions, rent, and regular income automatically.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">Spending Insights</div>
-        <div class="feature-desc">See where your money goes with charts and category breakdowns.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🎯</div>
-        <div class="feature-title">Budget Targets</div>
-        <div class="feature-desc">Set spending limits by category and track your progress.</div>
-      </div>
+      <div class="feature-card"><div class="feature-icon">⚡️</div><div class="feature-title">Quick Logging</div><div class="feature-desc">Add transactions in seconds. Tap, categorize, done.</div></div>
+      <div class="feature-card"><div class="feature-icon">🔁</div><div class="feature-title">Recurring Transactions</div><div class="feature-desc">Track subscriptions, rent, and regular income automatically.</div></div>
+      <div class="feature-card"><div class="feature-icon">📊</div><div class="feature-title">Spending Insights</div><div class="feature-desc">See where your money goes with charts and category breakdowns.</div></div>
+      <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title">Budget Targets</div><div class="feature-desc">Set spending limits by category and track your progress.</div></div>
     </div>
   </div>
 </section>
 
-<!-- Privacy -->
 <section class="privacy-callout">
   <h2>Your data stays yours</h2>
   <p>moniq stores everything locally on your device. No accounts, no cloud sync, no tracking. Your financial data never leaves your phone.</p>
@@ -239,7 +144,6 @@
   <span class="pill">Local storage only</span>
 </section>
 
-<!-- Footer -->
 <footer>
   <span>&copy; 2026 Sebastian Vogel</span>
   <div class="footer-links">
@@ -249,5 +153,23 @@
   </div>
 </footer>
 
+<script>
+  function isDark() {
+    const theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function updateIcon() {
+    document.getElementById('theme-toggle').textContent = isDark() ? '☀' : '🌙';
+  }
+  function toggleTheme() {
+    const next = isDark() ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('moniq-theme', next);
+    updateIcon();
+  }
+  updateIcon();
+</script>
 </body>
 </html>
