@@ -28,6 +28,16 @@
     .app-list a { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text); padding: 16px; border: 1px solid var(--card-border); border-radius: 12px; transition: background 0.1s; }
     .app-list a:hover { background: var(--card-hover); }
     .app-icon { width: 48px; height: 48px; border-radius: 11px; overflow: hidden; flex-shrink: 0; }
+    .app-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .app-icon .icon-dark { display: none; }
+    @media (prefers-color-scheme: dark) {
+      html:not([data-theme="light"]) .app-icon .icon-light { display: none; }
+      html:not([data-theme="light"]) .app-icon .icon-dark { display: block; }
+    }
+    html[data-theme="dark"] .app-icon .icon-light { display: none; }
+    html[data-theme="dark"] .app-icon .icon-dark { display: block; }
+    html[data-theme="light"] .app-icon .icon-light { display: block; }
+    html[data-theme="light"] .app-icon .icon-dark { display: none; }
     .app-info .name { font-weight: 600; font-size: 16px; }
     .app-info .desc { font-size: 13px; color: var(--text-secondary); }
     footer { margin-top: 64px; font-size: 13px; color: var(--text-secondary); }
@@ -45,30 +55,8 @@
   <li>
     <a href="moniq/">
       <div class="app-icon">
-        <svg width="48" height="48" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="iconBg" x1="0.5" y1="0" x2="0.5" y2="1">
-              <stop offset="0%" style="stop-color: var(--icon-top)"/>
-              <stop offset="100%" style="stop-color: var(--icon-bottom)"/>
-            </linearGradient>
-            <linearGradient id="iconVig" x1="0.5" y1="0" x2="0.5" y2="1">
-              <stop offset="0%" stop-color="black" stop-opacity="0"/>
-              <stop offset="100%" stop-color="black" stop-opacity="0.12"/>
-            </linearGradient>
-            <radialGradient id="iconGloss" cx="40%" cy="0%" r="80%">
-              <stop offset="0%"   stop-color="white" stop-opacity="0.22"/>
-              <stop offset="55%"  stop-color="white" stop-opacity="0.04"/>
-              <stop offset="100%" stop-color="white" stop-opacity="0"/>
-            </radialGradient>
-            <filter id="iconShadow">
-              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="black" flood-opacity="0.28"/>
-            </filter>
-          </defs>
-          <rect width="120" height="120" fill="url(#iconBg)"/>
-          <rect width="120" height="120" fill="url(#iconVig)"/>
-          <rect width="120" height="120" fill="url(#iconGloss)"/>
-          <text x="61" y="120" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif" font-size="118" font-weight="400" style="fill: var(--icon-m)" text-anchor="middle" letter-spacing="-5" filter="url(#iconShadow)">m</text>
-        </svg>
+        <img class="icon-light" src="moniq/assets/moniq-icon-light.png" alt="moniq app icon">
+        <img class="icon-dark" src="moniq/assets/moniq-icon-dark.png" alt="">
       </div>
       <div class="app-info">
         <div class="name">moniq</div>

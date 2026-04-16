@@ -73,6 +73,16 @@
 
     .hero { padding: 80px 24px 64px; max-width: 680px; margin: 0 auto; text-align: center; }
     .app-icon { width: 96px; height: 96px; border-radius: 22px; display: inline-block; margin-bottom: 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.25); overflow: hidden; }
+    .app-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .app-icon .icon-dark { display: none; }
+    @media (prefers-color-scheme: dark) {
+      html:not([data-theme="light"]) .app-icon .icon-light { display: none; }
+      html:not([data-theme="light"]) .app-icon .icon-dark { display: block; }
+    }
+    html[data-theme="dark"] .app-icon .icon-light { display: none; }
+    html[data-theme="dark"] .app-icon .icon-dark { display: block; }
+    html[data-theme="light"] .app-icon .icon-light { display: block; }
+    html[data-theme="light"] .app-icon .icon-dark { display: none; }
     h1 { font-size: 48px; font-weight: 700; letter-spacing: -1px; margin-bottom: 12px; }
     .tagline { font-size: 20px; color: var(--text-secondary); margin-bottom: 36px; max-width: 480px; margin-left: auto; margin-right: auto; }
     .cta { display: inline-block; background: var(--cta-bg); color: var(--cta-text); padding: 14px 32px; border-radius: 100px; font-size: 16px; font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
@@ -106,30 +116,8 @@
 
 <section class="hero">
   <div class="app-icon">
-    <svg width="96" height="96" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="iconBg" x1="0.5" y1="0" x2="0.5" y2="1">
-          <stop offset="0%" style="stop-color: var(--icon-top)"/>
-          <stop offset="100%" style="stop-color: var(--icon-bottom)"/>
-        </linearGradient>
-        <linearGradient id="iconVig" x1="0.5" y1="0" x2="0.5" y2="1">
-          <stop offset="0%" stop-color="black" stop-opacity="0"/>
-          <stop offset="100%" stop-color="black" stop-opacity="0.12"/>
-        </linearGradient>
-        <radialGradient id="iconGloss" cx="40%" cy="0%" r="80%">
-          <stop offset="0%"   stop-color="white" stop-opacity="0.22"/>
-          <stop offset="55%"  stop-color="white" stop-opacity="0.04"/>
-          <stop offset="100%" stop-color="white" stop-opacity="0"/>
-        </radialGradient>
-        <filter id="iconShadow">
-          <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="black" flood-opacity="0.28"/>
-        </filter>
-      </defs>
-      <rect width="120" height="120" fill="url(#iconBg)"/>
-      <rect width="120" height="120" fill="url(#iconVig)"/>
-      <rect width="120" height="120" fill="url(#iconGloss)"/>
-      <text x="61" y="120" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif" font-size="118" font-weight="400" style="fill: var(--icon-m)" text-anchor="middle" letter-spacing="-5" filter="url(#iconShadow)">m</text>
-    </svg>
+    <img class="icon-light" src="assets/moniq-icon-light.png" alt="moniq app icon">
+    <img class="icon-dark" src="assets/moniq-icon-dark.png" alt="">
   </div>
   <h1>moniq</h1>
   <p class="tagline">A local-first finance app for logging income and expenses, tracking recurring transactions, and understanding your spending.</p>
@@ -163,7 +151,7 @@
   <div class="footer-links">
     <a href="privacy.html">Privacy Policy</a>
     <a href="terms.html">Terms of Use</a>
-    <a href="mailto:grid_napkin_1h@icloud.com">Contact</a>
+    <span id="_cl"></span>
   </div>
 </footer>
 
@@ -184,6 +172,7 @@
     updateIcon();
   }
   updateIcon();
+  (function(){var _e=[103,114,105,100,95,110,97,112,107,105,110,95,49,104,64,105,99,108,111,117,100,46,99,111,109];var _a=_e.map(function(c){return String.fromCharCode(c);}).join('');document.getElementById('_cl').innerHTML='<a href="mailto:'+_a+'">Contact</a>';})();
 </script>
 </body>
 </html>
