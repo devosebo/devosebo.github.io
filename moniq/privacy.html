@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Policy — Moniq</title>
-  <meta name="description" content="How Moniq handles your data. Short version: it never leaves your device.">
+  <meta name="description" content="How Moniq handles your data. Your financial data is never sent to us or any third party.">
   <link rel="icon" type="image/png" href="assets/moniq-icon.png?v=20260424">
   <link rel="apple-touch-icon" href="assets/moniq-icon.png?v=20260424">
   <script>
@@ -46,6 +46,11 @@
     .brand { display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--ink); text-decoration:none; }
     .brand-icon { width:22px; height:22px; border-radius:5px; overflow:hidden; display:block; }
     .brand-icon img { width:100%; height:100%; display:block; }
+    .brand-icon .dark-only, .brand-icon .light-only { display: none; }
+    html[data-theme="light"] .brand-icon .light-only { display: block; }
+    html[data-theme="dark"]  .brand-icon .dark-only  { display: block; }
+    @media (prefers-color-scheme: light) { html:not([data-theme="dark"])  .brand-icon .light-only { display: block; } }
+    @media (prefers-color-scheme: dark)  { html:not([data-theme="light"]) .brand-icon .dark-only  { display: block; } }
 
     #theme-toggle { width:32px; height:32px; border-radius:50%; border:1px solid var(--toggle-border); background:var(--toggle-bg); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--ink); }
     #theme-toggle:hover { background: var(--hair-strong); }
@@ -66,7 +71,8 @@
 <nav>
   <a class="brand" href="./">
     <span class="brand-icon">
-      <img src="assets/moniq-icon.png?v=20260424" alt="">
+      <img class="light-only" src="assets/moniq-icon.png?v=20260424" alt="">
+      <img class="dark-only"  src="assets/moniq-icon-dark.png?v=20260424" alt="">
     </span>
     <span data-brand>Moniq</span>
   </a>
@@ -76,7 +82,7 @@
 <h1>Privacy Policy</h1>
 <p class="meta">Last updated: April 23, 2026</p>
 
-<p>Short version: your data never leaves your device.</p>
+<p>Short version: your data is never sent to us or any third party.</p>
 
 <h2>Data storage</h2>
 <p>All data you enter into <span data-brand>Moniq</span> — transactions, categories, budgets, settings — is stored locally on your device using Apple's on-device storage. No data is transmitted to any server or third party.</p>
@@ -84,8 +90,9 @@
 <h2>No account required</h2>
 <p><span data-brand>Moniq</span> does not require you to create an account, sign in, or provide any personal information.</p>
 
-<h2>No analytics or tracking</h2>
-<p><span data-brand>Moniq</span> does not include analytics, crash reporting, or advertising SDKs. No usage data, behavioral data, or device identifiers are collected.</p>
+<h2>Analytics and performance data</h2>
+<p><span data-brand>Moniq</span> does not include any third-party analytics or advertising SDKs. No usage data, behavioural data, or device identifiers are sent to us or any third party.</p>
+<p><span data-brand>Moniq</span> uses Apple's MetricsKit framework, which provides iOS apps with aggregated, anonymised performance and crash diagnostics collected by the operating system. This data is gathered by Apple — not by us — and we receive only aggregate summaries. Individual user data is never accessible through MetricsKit.</p>
 
 <h2>Third parties</h2>
 <p><span data-brand>Moniq</span> does not share any data with third parties. There are no integrations with external services that access your financial data.</p>
@@ -93,8 +100,8 @@
 <h2>Your control</h2>
 <p>You can export your data as a CSV file from within the app at any time. You can delete all app data using the reset option in settings. Uninstalling <span data-brand>Moniq</span> removes all associated data from your device.</p>
 
-<h2>A note on future iCloud sync</h2>
-<p>A future update may add optional iCloud sync. If it does, that sync would be directly between your devices and Apple's iCloud — <span data-brand>Moniq</span> would never see or store your data on any server operated by us. If this ever changes, this policy will be updated and the date above revised.</p>
+<h2>iCloud</h2>
+<p><span data-brand>Moniq</span> may add iCloud support in a future update. Any sync would use Apple's encrypted infrastructure — your data would never pass through servers we operate.</p>
 
 <h2>Children</h2>
 <p><span data-brand>Moniq</span> is not directed at children under 13 and does not knowingly collect information from children.</p>
@@ -105,29 +112,51 @@
 <h2>Contact</h2>
 <p>Questions about this Privacy Policy:<br>
 Sebastian Vogel<br>
-<a href="/cdn-cgi/l/email-protection#5c3b2e353803323d2c373532036d341c353f30332938723f3331"><span class="__cf_email__" data-cfemail="1374617a774c7d7263787a7d4c227b537a707f7c66773d707c7e">[email&#160;protected]</span></a></p>
+<a id="_email_link" href="#">[email protected]</a></p>
 
 <footer>
   <a href="./">← <span data-brand>Moniq</span></a>
   <a href="terms.html">Terms of Use</a>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  function currentTheme() {
-    const t = document.documentElement.getAttribute('data-theme');
-    if (t === 'dark' || t === 'light') return t;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+<script>
+  // Three-state theme: auto → dark → light → auto
+  function storedTheme() {
+    const v = localStorage.getItem('moniq-theme');
+    return (v === 'dark' || v === 'light') ? v : null;
   }
-  function updateToggleIcon() {
-    document.getElementById('theme-toggle').textContent = currentTheme() === 'dark' ? '☀' : '☾';
-  }
-  function toggleTheme() {
-    const next = currentTheme() === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('moniq-theme', next);
+  function applyTheme() {
+    const stored = storedTheme();
+    if (stored) document.documentElement.setAttribute('data-theme', stored);
+    else document.documentElement.removeAttribute('data-theme');
     updateToggleIcon();
   }
-  updateToggleIcon();
+  function updateToggleIcon() {
+    const btn = document.getElementById('theme-toggle');
+    const stored = storedTheme();
+    if (stored === 'dark')       { btn.textContent = '☾'; btn.title = 'Theme: Dark · click for Light'; }
+    else if (stored === 'light') { btn.textContent = '☀'; btn.title = 'Theme: Light · click for Auto'; }
+    else                         { btn.textContent = '◐'; btn.title = 'Theme: Auto (System) · click for Dark'; }
+  }
+  function toggleTheme() {
+    const stored = storedTheme();
+    if (stored === null)        localStorage.setItem('moniq-theme', 'dark');
+    else if (stored === 'dark') localStorage.setItem('moniq-theme', 'light');
+    else                        localStorage.removeItem('moniq-theme');
+    applyTheme();
+  }
+  applyTheme();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (!storedTheme()) applyTheme();
+  });
+  // Obfuscated contact email
+  (function () {
+    var e = [103,114,105,100,95,110,97,112,107,105,110,95,49,104,64,105,99,108,111,117,100,46,99,111,109];
+    var a = e.map(function (c) { return String.fromCharCode(c); }).join('');
+    var el = document.getElementById('_email_link');
+    el.href = 'mailto:' + a;
+    el.textContent = a;
+  })();
 </script>
 </body>
 </html>
