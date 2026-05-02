@@ -10,36 +10,60 @@
   </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --bg:#fff; --text:#1a1a1a; --text-secondary:#888; --card-border:#eee; --card-hover:#f7f7f7; --icon-top:#E08060; --icon-bottom:#C06840; --icon-m:rgba(255,255,255,0.92); --toggle-bg:#f0f0f0; --toggle-border:#ddd; }
+    :root { --bg:#fff; --text:#1a1a1a; --text-secondary:#888; --card-border:#eee; --card-hover:#f7f7f7; --toggle-bg:#f0f0f0; --toggle-border:#ddd; }
     @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) { --bg:#111; --text:#f0f0f0; --text-secondary:#666; --card-border:#2e2e2e; --card-hover:#1e1e1e; --icon-top:#1E1612; --icon-bottom:#2A1E16; --icon-m:#D97757; --toggle-bg:#2a2a2a; --toggle-border:#3a3a3a; }
+      :root:not([data-theme="light"]) { --bg:#111; --text:#f0f0f0; --text-secondary:#666; --card-border:#2e2e2e; --card-hover:#1e1e1e; --toggle-bg:#2a2a2a; --toggle-border:#3a3a3a; }
     }
-    html[data-theme="dark"] { --bg:#111; --text:#f0f0f0; --text-secondary:#666; --card-border:#2e2e2e; --card-hover:#1e1e1e; --icon-top:#1E1612; --icon-bottom:#2A1E16; --icon-m:#D97757; --toggle-bg:#2a2a2a; --toggle-border:#3a3a3a; }
-    html[data-theme="light"] { --bg:#fff; --text:#1a1a1a; --text-secondary:#888; --card-border:#eee; --card-hover:#f7f7f7; --icon-top:#E08060; --icon-bottom:#C06840; --icon-m:rgba(255,255,255,0.92); --toggle-bg:#f0f0f0; --toggle-border:#ddd; }
+    html[data-theme="dark"]  { --bg:#111; --text:#f0f0f0; --text-secondary:#666; --card-border:#2e2e2e; --card-hover:#1e1e1e; --toggle-bg:#2a2a2a; --toggle-border:#3a3a3a; }
+    html[data-theme="light"] { --bg:#fff; --text:#1a1a1a; --text-secondary:#888; --card-border:#eee; --card-hover:#f7f7f7; --toggle-bg:#f0f0f0; --toggle-border:#ddd; }
 
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.7; color: var(--text); background: var(--bg); padding: 80px 24px; max-width: 480px; margin: 0 auto; }
-    #theme-toggle { position: fixed; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--toggle-border); background: var(--toggle-bg); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+
+    #theme-toggle { position: fixed; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--toggle-border); background: var(--toggle-bg); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; }
     #theme-toggle:hover { opacity: 0.8; }
+
     h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-    .sub { font-size: 15px; color: var(--text-secondary); margin-bottom: 48px; }
+    .sub { font-size: 15px; color: var(--text-secondary); margin-bottom: 10px; }
+    .bio { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 48px; }
+
+    .section { margin-bottom: 44px; }
     h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 16px; }
+
+    /* App cards */
     .app-list { list-style: none; }
-    .app-list li { margin-bottom: 16px; }
-    .app-list a { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text); padding: 16px; border: 1px solid var(--card-border); border-radius: 12px; transition: background 0.1s; }
+    .app-list li { margin-bottom: 12px; }
+    .app-list a { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text); padding: 14px 16px; border: 1px solid var(--card-border); border-radius: 12px; transition: background 0.1s; }
     .app-list a:hover { background: var(--card-hover); }
     .app-icon { width: 48px; height: 48px; border-radius: 11px; overflow: hidden; flex-shrink: 0; }
     .app-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .app-icon .icon-dark { display: none; }
     @media (prefers-color-scheme: dark) {
       html:not([data-theme="light"]) .app-icon .icon-light { display: none; }
-      html:not([data-theme="light"]) .app-icon .icon-dark { display: block; }
+      html:not([data-theme="light"]) .app-icon .icon-dark  { display: block; }
     }
-    html[data-theme="dark"] .app-icon .icon-light { display: none; }
-    html[data-theme="dark"] .app-icon .icon-dark { display: block; }
+    html[data-theme="dark"]  .app-icon .icon-light { display: none; }
+    html[data-theme="dark"]  .app-icon .icon-dark  { display: block; }
     html[data-theme="light"] .app-icon .icon-light { display: block; }
-    html[data-theme="light"] .app-icon .icon-dark { display: none; }
+    html[data-theme="light"] .app-icon .icon-dark  { display: none; }
     .app-info .name { font-weight: 600; font-size: 16px; }
     .app-info .desc { font-size: 13px; color: var(--text-secondary); }
+
+    /* Link rows */
+    .link-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .link-list a { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; text-decoration: none; color: var(--text); padding: 11px 14px; border: 1px solid var(--card-border); border-radius: 10px; transition: background 0.1s; font-size: 14px; }
+    .link-list a:hover { background: var(--card-hover); }
+    .link-title { font-weight: 500; }
+    .link-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .link-domain { font-size: 12px; color: var(--text-secondary); }
+    .private-badge { font-size: 10.5px; color: var(--text-secondary); border: 1px solid var(--card-border); border-radius: 4px; padding: 1px 5px; letter-spacing: 0.02em; }
+
+    /* Social rows */
+    .social-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .social-list a { display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text); padding: 11px 14px; border: 1px solid var(--card-border); border-radius: 10px; transition: background 0.1s; font-size: 14px; }
+    .social-list a:hover { background: var(--card-hover); }
+    .social-label { font-weight: 500; }
+    .social-handle { font-size: 13px; color: var(--text-secondary); }
+
     footer { margin-top: 64px; font-size: 13px; color: var(--text-secondary); }
   </style>
 </head>
@@ -49,39 +73,132 @@
 
 <h1>devosebo</h1>
 <p class="sub">Apps by Sebastian Vogel</p>
+<p class="bio">🇪🇺 🇦🇹 &nbsp;A European citizen from Vorarlberg, Austria, currently based in Brussels.</p>
 
-<h2>Apps</h2>
-<ul class="app-list">
-  <li>
-    <a href="moniq/">
-      <div class="app-icon">
-        <img class="icon-light" src="moniq/assets/moniq-icon-light.png?v=20260416c" alt="moniq app icon">
-        <img class="icon-dark" src="moniq/assets/moniq-icon-dark.png?v=20260416c" alt="">
-      </div>
-      <div class="app-info">
-        <div class="name">moniq</div>
-        <div class="desc">Local-first personal finance tracker</div>
-      </div>
-    </a>
-  </li>
-</ul>
+<div class="section">
+  <h2>Apps</h2>
+  <ul class="app-list">
+    <li>
+      <a href="moniq/">
+        <div class="app-icon">
+          <img class="icon-light" src="moniq/assets/moniq-icon.png?v=20260502" alt="Moniq app icon">
+          <img class="icon-dark"  src="moniq/assets/moniq-icon-dark.png?v=20260502" alt="">
+        </div>
+        <div class="app-info">
+          <div class="name">Moniq</div>
+          <div class="desc">Local-first personal finance tracker</div>
+        </div>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>Links</h2>
+  <ul class="link-list">
+    <li>
+      <a href="https://zemat.eu" target="_blank" rel="noopener">
+        <span class="link-title">Vorarlberger:innen in Brüssel</span>
+        <span class="link-meta"><span class="link-domain">zemat.eu</span></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://cencenelec.eu" target="_blank" rel="noopener">
+        <span class="link-title">Work @ CEN and CENELEC</span>
+        <span class="link-meta"><span class="link-domain">cencenelec.eu</span></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://www.vn.at/tags/sebastian-vogel" target="_blank" rel="noopener">
+        <span class="link-title">Artikel bei den Vorarlberger Nachrichten</span>
+        <span class="link-meta"><span class="link-domain">vn.at</span></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://www.vol.at/erster-vorarlberger-verein-in-brussel/8462572" target="_blank" rel="noopener">
+        <span class="link-title">Interview: Erster Vorarlberger Verein in Brüssel</span>
+        <span class="link-meta"><span class="link-domain">vol.at</span></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://link.springer.com/article/10.1007/s00502-023-01144-2" target="_blank" rel="noopener">
+        <span class="link-title">Publication: Towards an interoperability roadmap for the energy transition</span>
+        <span class="link-meta"><span class="link-domain">springer.com</span></span>
+      </a>
+    </li>
+    <li>
+      <a href="https://seb.synology.me:5001/#/signin" target="_blank" rel="noopener">
+        <span class="link-title">My NAS</span>
+        <span class="link-meta"><span class="private-badge">private</span><span class="link-domain">seb.synology.me</span></span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>Social</h2>
+  <ul class="social-list">
+    <li>
+      <a href="https://linkedin.com/in/vogelseb" target="_blank" rel="noopener">
+        <span class="social-label">LinkedIn</span>
+        <span class="social-handle">vogelseb</span>
+      </a>
+    </li>
+    <li>
+      <a href="https://www.instagram.com/socseb" target="_blank" rel="noopener">
+        <span class="social-label">Instagram</span>
+        <span class="social-handle">@socseb</span>
+      </a>
+    </li>
+    <li>
+      <a id="_email_link" href="#">
+        <span class="social-label">Email</span>
+        <span class="social-handle" id="_email_handle"></span>
+      </a>
+    </li>
+  </ul>
+</div>
 
 <footer>&copy; 2026 Sebastian Vogel</footer>
 
 <script>
-  function isDark() {
-    const t = document.documentElement.getAttribute('data-theme');
-    if (t === 'dark') return true; if (t === 'light') return false;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  // Three-state theme: auto → dark → light → auto
+  function storedTheme() {
+    const v = localStorage.getItem('moniq-theme');
+    return (v === 'dark' || v === 'light') ? v : null;
   }
-  function updateIcon() { document.getElementById('theme-toggle').textContent = isDark() ? '☀' : '🌙'; }
+  function applyTheme() {
+    const stored = storedTheme();
+    if (stored) document.documentElement.setAttribute('data-theme', stored);
+    else document.documentElement.removeAttribute('data-theme');
+    updateToggleIcon();
+  }
+  function updateToggleIcon() {
+    const btn = document.getElementById('theme-toggle');
+    const stored = storedTheme();
+    if (stored === 'dark')       { btn.textContent = '☾'; btn.title = 'Theme: Dark · click for Light'; }
+    else if (stored === 'light') { btn.textContent = '☀'; btn.title = 'Theme: Light · click for Auto'; }
+    else                         { btn.textContent = '◐'; btn.title = 'Theme: Auto (System) · click for Dark'; }
+  }
   function toggleTheme() {
-    const next = isDark() ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('moniq-theme', next);
-    updateIcon();
+    const stored = storedTheme();
+    if (stored === null)        localStorage.setItem('moniq-theme', 'dark');
+    else if (stored === 'dark') localStorage.setItem('moniq-theme', 'light');
+    else                        localStorage.removeItem('moniq-theme');
+    applyTheme();
   }
-  updateIcon();
+  applyTheme();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (!storedTheme()) applyTheme();
+  });
+
+  // Obfuscated email
+  (function () {
+    var e = [48,55,46,116,97,120,105,115,46,115,104,97,107,101,64,105,99,108,111,117,100,46,99,111,109];
+    var a = e.map(function (c) { return String.fromCharCode(c); }).join('');
+    document.getElementById('_email_handle').textContent = a;
+    document.getElementById('_email_link').href = 'mailto:' + a;
+  })();
 </script>
 </body>
 </html>
