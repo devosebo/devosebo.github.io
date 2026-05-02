@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>devosebo</title>
+  <title>Links by Sebastian Vogel</title>
   <script>
     const saved = localStorage.getItem('moniq-theme');
     if (saved) document.documentElement.setAttribute('data-theme', saved);
@@ -22,12 +22,27 @@
     #theme-toggle { position: fixed; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--toggle-border); background: var(--toggle-bg); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; }
     #theme-toggle:hover { opacity: 0.8; }
 
-    h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-    .sub { font-size: 15px; color: var(--text-secondary); margin-bottom: 10px; }
-    .bio { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 48px; }
+    /* Header */
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
 
+    /* Social icon row */
+    .social-icons { display: flex; gap: 10px; margin-bottom: 48px; }
+    .social-icons a { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--toggle-border); background: var(--toggle-bg); color: var(--text); text-decoration: none; transition: opacity 0.1s; }
+    .social-icons a:hover { opacity: 0.7; }
+    .social-icons svg { width: 16px; height: 16px; }
+
+    /* Sections */
     .section { margin-bottom: 44px; }
     h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 16px; }
+
+    /* Link rows */
+    .link-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .link-list a { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; text-decoration: none; color: var(--text); padding: 11px 14px; border: 1px solid var(--card-border); border-radius: 10px; transition: background 0.1s; font-size: 14px; }
+    .link-list a:hover { background: var(--card-hover); }
+    .link-title { font-weight: 500; }
+    .link-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .link-domain { font-size: 12px; color: var(--text-secondary); }
+    .private-badge { font-size: 10.5px; color: var(--text-secondary); border: 1px solid var(--card-border); border-radius: 4px; padding: 1px 5px; letter-spacing: 0.02em; }
 
     /* App cards */
     .app-list { list-style: none; }
@@ -48,22 +63,6 @@
     .app-info .name { font-weight: 600; font-size: 16px; }
     .app-info .desc { font-size: 13px; color: var(--text-secondary); }
 
-    /* Link rows */
-    .link-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-    .link-list a { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; text-decoration: none; color: var(--text); padding: 11px 14px; border: 1px solid var(--card-border); border-radius: 10px; transition: background 0.1s; font-size: 14px; }
-    .link-list a:hover { background: var(--card-hover); }
-    .link-title { font-weight: 500; }
-    .link-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-    .link-domain { font-size: 12px; color: var(--text-secondary); }
-    .private-badge { font-size: 10.5px; color: var(--text-secondary); border: 1px solid var(--card-border); border-radius: 4px; padding: 1px 5px; letter-spacing: 0.02em; }
-
-    /* Social rows */
-    .social-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-    .social-list a { display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--text); padding: 11px 14px; border: 1px solid var(--card-border); border-radius: 10px; transition: background 0.1s; font-size: 14px; }
-    .social-list a:hover { background: var(--card-hover); }
-    .social-label { font-weight: 500; }
-    .social-handle { font-size: 13px; color: var(--text-secondary); }
-
     footer { margin-top: 64px; font-size: 13px; color: var(--text-secondary); }
   </style>
 </head>
@@ -71,26 +70,29 @@
 
 <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color scheme"></button>
 
-<h1>devosebo</h1>
-<p class="sub">Apps by Sebastian Vogel</p>
-<p class="bio">🇪🇺 🇦🇹 &nbsp;A European citizen from Vorarlberg, Austria, currently based in Brussels.</p>
+<h1>Links by Sebastian Vogel</h1>
 
-<div class="section">
-  <h2>Apps</h2>
-  <ul class="app-list">
-    <li>
-      <a href="moniq/">
-        <div class="app-icon">
-          <img class="icon-light" src="moniq/assets/moniq-icon.png?v=20260502" alt="Moniq app icon">
-          <img class="icon-dark"  src="moniq/assets/moniq-icon-dark.png?v=20260502" alt="">
-        </div>
-        <div class="app-info">
-          <div class="name">Moniq</div>
-          <div class="desc">Local-first personal finance tracker</div>
-        </div>
-      </a>
-    </li>
-  </ul>
+<div class="social-icons">
+  <a href="https://linkedin.com/in/vogelseb" target="_blank" rel="noopener" title="LinkedIn · vogelseb" aria-label="LinkedIn">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/>
+      <rect x="2" y="9" width="4" height="12"/>
+      <circle cx="4" cy="4" r="2"/>
+    </svg>
+  </a>
+  <a href="https://www.instagram.com/socseb" target="_blank" rel="noopener" title="Instagram · @socseb" aria-label="Instagram">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5"/>
+      <circle cx="12" cy="12" r="4"/>
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+    </svg>
+  </a>
+  <a id="_email_link" href="#" title="Email" aria-label="Email">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="2" y="4" width="20" height="16" rx="2"/>
+      <path d="M22 7L12 14 2 7"/>
+    </svg>
+  </a>
 </div>
 
 <div class="section">
@@ -136,24 +138,18 @@
 </div>
 
 <div class="section">
-  <h2>Social</h2>
-  <ul class="social-list">
+  <h2>Apps</h2>
+  <ul class="app-list">
     <li>
-      <a href="https://linkedin.com/in/vogelseb" target="_blank" rel="noopener">
-        <span class="social-label">LinkedIn</span>
-        <span class="social-handle">vogelseb</span>
-      </a>
-    </li>
-    <li>
-      <a href="https://www.instagram.com/socseb" target="_blank" rel="noopener">
-        <span class="social-label">Instagram</span>
-        <span class="social-handle">@socseb</span>
-      </a>
-    </li>
-    <li>
-      <a id="_email_link" href="#">
-        <span class="social-label">Email</span>
-        <span class="social-handle" id="_email_handle"></span>
+      <a href="moniq/">
+        <div class="app-icon">
+          <img class="icon-light" src="moniq/assets/moniq-icon.png?v=20260502" alt="Moniq app icon">
+          <img class="icon-dark"  src="moniq/assets/moniq-icon-dark.png?v=20260502" alt="">
+        </div>
+        <div class="app-info">
+          <div class="name">Moniq</div>
+          <div class="desc">Local-first personal finance tracker</div>
+        </div>
       </a>
     </li>
   </ul>
@@ -196,8 +192,8 @@
   (function () {
     var e = [48,55,46,116,97,120,105,115,46,115,104,97,107,101,64,105,99,108,111,117,100,46,99,111,109];
     var a = e.map(function (c) { return String.fromCharCode(c); }).join('');
-    document.getElementById('_email_handle').textContent = a;
     document.getElementById('_email_link').href = 'mailto:' + a;
+    document.getElementById('_email_link').title = 'Email · ' + a;
   })();
 </script>
 </body>
