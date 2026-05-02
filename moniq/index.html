@@ -6,7 +6,7 @@
   <title>Moniq — Personal finance, simplified.</title>
   <meta name="description" content="Moniq is a free iPhone expense tracker. Log income and expenses fast, privately, with no account required. Available on the Apple App Store.">
   <meta property="og:title" content="Moniq — Personal finance, simplified.">
-  <meta property="og:description" content="A local-only expense logger for iPhone. Speed, privacy, simplicity.">
+  <meta property="og:description" content="A private expense tracker for iPhone. Speed, privacy, simplicity.">
   <meta property="og:image" content="assets/moniq-icon.png?v=20260424">
   <link rel="icon" type="image/png" href="assets/moniq-icon.png?v=20260424">
   <link rel="apple-touch-icon" href="assets/moniq-icon.png?v=20260424">
@@ -309,6 +309,13 @@
       .features-inner { grid-template-columns: 1fr; gap: 24px; }
     }
 
+    /* Backstory section */
+    .backstory { max-width: 660px; margin: 0 auto; padding: 80px 24px; }
+    .backstory-eye { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px; }
+    .backstory h2 { font-size: clamp(22px, 3.5vw, 32px); font-weight: 600; letter-spacing: -0.02em; margin-bottom: 20px; }
+    .backstory p { font-size: 16px; color: var(--ink-2); line-height: 1.65; margin-bottom: 16px; text-wrap: pretty; }
+    .backstory-sig { font-size: 14px; color: var(--ink-3); margin-top: 24px; }
+
     /* Privacy section */
     .privacy {
       max-width: 900px;
@@ -362,6 +369,7 @@
     footer a { color: var(--ink-3); text-decoration: none; }
     footer a:hover { color: var(--ink); }
     .foot-links { display: flex; gap: 22px; flex-wrap: wrap; }
+    .foot-eu { font-size: 13px; color: var(--ink-3); }
 
     @media (max-width: 480px) {
       nav { padding: 16px 20px; }
@@ -397,7 +405,7 @@
       Available on the Apple App Store
     </div>
     <h1>Personal finance,<br><em>simplified.</em></h1>
-    <p class="lede">A local-only expense logger for iPhone. Speed, privacy, and simplicity — your data stays on your device.</p>
+    <p class="lede">A private expense tracker for iPhone. Speed, simplicity, and full control over your data.</p>
     <div class="ctas">
       <a class="cta" href="https://apps.apple.com/us/app/moniq-simple-expense-tracker/id6762153392" target="_blank" rel="noopener">Download on the App Store →</a>
       <a class="cta-ghost" href="#privacy">Read the privacy promise</a>
@@ -418,6 +426,14 @@
       <img class="shot" src="assets/screen-transactions.png?v=20260424" alt="Moniq — Transactions screen listing upcoming and past expenses for April 2026">
       <div class="phone-label">Transactions</div>
     </div>
+  </section>
+
+  <section class="backstory">
+    <div class="backstory-eye">— The backstory —</div>
+    <h2>Built because nothing else did the job.</h2>
+    <p>I used expense trackers for years. Then they went unmaintained, added subscriptions, or grew so bloated I stopped opening them.</p>
+    <p>So I built my own. I use it every day, which means every improvement matters to me personally and it stays lean because I live with it. And whatever happens — your data is always yours. Import and export are core, not an afterthought.</p>
+    <p class="backstory-sig">— Sebastian</p>
   </section>
 
   <section class="features" id="features">
@@ -448,7 +464,7 @@
   <section class="privacy" id="privacy">
     <div class="privacy-eye">— The promise —</div>
     <h2>Your data <span class="accent">belongs to you.</span></h2>
-    <p>Moniq stores everything locally on your device. No accounts, no third-party tracking, no ads. The app is free and will stay that way.</p>
+    <p>Moniq keeps your data private. No accounts, no third-party tracking, no ads. The app is free and will stay that way.</p>
     <div class="pill-row">
       <span class="pill">No account required</span>
       <span class="pill">No third-party tracking</span>
@@ -461,6 +477,7 @@
 
 <footer>
   <span>© 2026 Sebastian Vogel</span>
+  <span class="foot-eu">🇪🇺 Made in the EU</span>
   <div class="foot-links">
     <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
