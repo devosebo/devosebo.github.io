@@ -3,94 +3,131 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy – moniq</title>
+  <title>Privacy Policy — Moniq</title>
+  <meta name="description" content="How Moniq handles your data. Short version: it never leaves your device.">
+  <link rel="icon" type="image/png" href="assets/moniq-icon.png?v=20260424">
+  <link rel="apple-touch-icon" href="assets/moniq-icon.png?v=20260424">
   <script>
     const saved = localStorage.getItem('moniq-theme');
     if (saved) document.documentElement.setAttribute('data-theme', saved);
   </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --bg:#fff; --text:#1a1a1a; --text-secondary:#888; --link:#0066cc; --footer-border:#eee; --toggle-bg:#f0f0f0; --toggle-border:#ddd; }
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) { --bg:#111; --text:#e8e8e8; --text-secondary:#777; --link:#4da6ff; --footer-border:#2e2e2e; --toggle-bg:#2a2a2a; --toggle-border:#3a3a3a; }
+    :root {
+      color-scheme: light dark;
+      --bg:#f6f3ec; --ink:#16120d; --ink-2:rgba(22,18,13,0.7); --ink-3:rgba(22,18,13,0.45);
+      --hair:rgba(22,18,13,0.1); --hair-strong:rgba(22,18,13,0.18);
+      --surface:#ffffff; --link:#0b7a57;
+      --toggle-bg:rgba(22,18,13,0.06); --toggle-border:rgba(22,18,13,0.14);
     }
-    html[data-theme="dark"] { --bg:#111; --text:#e8e8e8; --text-secondary:#777; --link:#4da6ff; --footer-border:#2e2e2e; --toggle-bg:#2a2a2a; --toggle-border:#3a3a3a; }
-    html[data-theme="light"] { --bg:#fff; --text:#1a1a1a; --text-secondary:#888; --link:#0066cc; --footer-border:#eee; --toggle-bg:#f0f0f0; --toggle-border:#ddd; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg:#0b0d0f; --ink:#f2f0ec; --ink-2:rgba(242,240,236,0.7); --ink-3:rgba(242,240,236,0.44);
+        --hair:rgba(255,255,255,0.08); --hair-strong:rgba(255,255,255,0.16);
+        --surface:#141719; --link:#35d49f;
+        --toggle-bg:rgba(255,255,255,0.06); --toggle-border:rgba(255,255,255,0.12);
+      }
+    }
+    html[data-theme="dark"] {
+      --bg:#0b0d0f; --ink:#f2f0ec; --ink-2:rgba(242,240,236,0.7); --ink-3:rgba(242,240,236,0.44);
+      --hair:rgba(255,255,255,0.08); --hair-strong:rgba(255,255,255,0.16);
+      --surface:#141719; --link:#35d49f;
+      --toggle-bg:rgba(255,255,255,0.06); --toggle-border:rgba(255,255,255,0.12);
+    }
 
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.7; color: var(--text); background: var(--bg); padding: 48px 24px 80px; max-width: 680px; margin: 0 auto; }
-    #theme-toggle { position: fixed; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--toggle-border); background: var(--toggle-bg); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-    #theme-toggle:hover { opacity: 0.8; }
-    header { margin-bottom: 40px; }
-    header a { font-size: 14px; color: var(--text-secondary); text-decoration: none; }
-    header a:hover { color: var(--text); }
-    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-    .meta { font-size: 14px; color: var(--text-secondary); margin-bottom: 40px; }
-    h2 { font-size: 18px; font-weight: 600; margin-top: 36px; margin-bottom: 8px; }
-    p { margin-bottom: 16px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 16px; line-height: 1.65;
+      color: var(--ink); background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      max-width: 680px; margin: 0 auto; padding: 32px 24px 80px;
+    }
+    nav { display:flex; justify-content:space-between; align-items:center; margin-bottom: 48px; }
+    .brand { display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--ink); text-decoration:none; }
+    .brand-icon { width:22px; height:22px; border-radius:5px; overflow:hidden; display:block; }
+    .brand-icon img { width:100%; height:100%; display:block; }
+
+    #theme-toggle { width:32px; height:32px; border-radius:50%; border:1px solid var(--toggle-border); background:var(--toggle-bg); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--ink); }
+    #theme-toggle:hover { background: var(--hair-strong); }
+
+    h1 { font-size: 34px; letter-spacing: -0.025em; font-weight: 600; margin-bottom: 8px; }
+    .meta { font-size: 13.5px; color: var(--ink-3); margin-bottom: 36px; }
+    h2 { font-size: 18px; font-weight: 600; margin-top: 34px; margin-bottom: 10px; letter-spacing: -0.01em; }
+    p { margin-bottom: 16px; color: var(--ink-2); }
     a { color: var(--link); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--footer-border); font-size: 14px; color: var(--text-secondary); }
-    footer a { color: var(--text-secondary); }
-    footer a:hover { color: var(--text); }
+    footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--hair); font-size: 13.5px; color: var(--ink-3); display: flex; gap: 18px; flex-wrap: wrap; }
+    footer a { color: var(--ink-3); }
+    footer a:hover { color: var(--ink); text-decoration: none; }
   </style>
 </head>
 <body>
 
-<button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color scheme"></button>
-
-<header><a href="../moniq/">&larr; moniq</a></header>
+<nav>
+  <a class="brand" href="./">
+    <span class="brand-icon">
+      <img src="assets/moniq-icon.png?v=20260424" alt="">
+    </span>
+    <span data-brand>Moniq</span>
+  </a>
+  <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color scheme"></button>
+</nav>
 
 <h1>Privacy Policy</h1>
-<p class="meta">Last updated: April 9, 2026</p>
+<p class="meta">Last updated: April 23, 2026</p>
 
-<p>This Privacy Policy describes how moniq handles your information. The short version: your data never leaves your device.</p>
+<p>Short version: your data never leaves your device.</p>
 
-<h2>Data Storage</h2>
-<p>All data you enter into moniq — including transactions, categories, budgets, and settings — is stored exclusively on your device using Apple's local storage. No data is transmitted to any server, cloud service, or third party.</p>
+<h2>Data storage</h2>
+<p>All data you enter into <span data-brand>Moniq</span> — transactions, categories, budgets, settings — is stored locally on your device using Apple's on-device storage. No data is transmitted to any server or third party.</p>
 
-<h2>No Account Required</h2>
-<p>moniq does not require you to create an account, sign in, or provide any personal information to use the app.</p>
+<h2>No account required</h2>
+<p><span data-brand>Moniq</span> does not require you to create an account, sign in, or provide any personal information.</p>
 
-<h2>No Analytics or Tracking</h2>
-<p>moniq does not include any analytics, crash reporting, or advertising SDKs. No usage data, behavioral data, or device identifiers are collected or shared.</p>
+<h2>No analytics or tracking</h2>
+<p><span data-brand>Moniq</span> does not include analytics, crash reporting, or advertising SDKs. No usage data, behavioral data, or device identifiers are collected.</p>
 
-<h2>Third Parties</h2>
-<p>moniq does not share any data with third parties. There are no integrations with external services that access your financial data.</p>
+<h2>Third parties</h2>
+<p><span data-brand>Moniq</span> does not share any data with third parties. There are no integrations with external services that access your financial data.</p>
 
-<h2>Your Control</h2>
-<p>You have full control over your data at all times:</p>
-<p>You can export your data as a CSV file from within the app. You can delete all app data using the reset option in the app's settings. Uninstalling moniq removes all associated data from your device.</p>
+<h2>Your control</h2>
+<p>You can export your data as a CSV file from within the app at any time. You can delete all app data using the reset option in settings. Uninstalling <span data-brand>Moniq</span> removes all associated data from your device.</p>
+
+<h2>A note on future iCloud sync</h2>
+<p>A future update may add optional iCloud sync. If it does, that sync would be directly between your devices and Apple's iCloud — <span data-brand>Moniq</span> would never see or store your data on any server operated by us. If this ever changes, this policy will be updated and the date above revised.</p>
 
 <h2>Children</h2>
-<p>moniq is not directed at children under 13 and does not knowingly collect information from children.</p>
+<p><span data-brand>Moniq</span> is not directed at children under 13 and does not knowingly collect information from children.</p>
 
-<h2>Changes to This Policy</h2>
+<h2>Changes to this policy</h2>
 <p>If this policy changes materially, the updated version will be posted here with a revised date. Continued use of the app after changes constitutes acceptance.</p>
 
 <h2>Contact</h2>
-<p>If you have questions about this Privacy Policy, contact:<br>
+<p>Questions about this Privacy Policy:<br>
 Sebastian Vogel<br>
-<a href="mailto:grid_napkin_1h@icloud.com">grid_napkin_1h@icloud.com</a></p>
+<a href="/cdn-cgi/l/email-protection#5c3b2e353803323d2c373532036d341c353f30332938723f3331"><span class="__cf_email__" data-cfemail="1374617a774c7d7263787a7d4c227b537a707f7c66773d707c7e">[email&#160;protected]</span></a></p>
 
 <footer>
-  <a href="../moniq/">moniq</a> &middot;
+  <a href="./">← <span data-brand>Moniq</span></a>
   <a href="terms.html">Terms of Use</a>
 </footer>
 
-<script>
-  function isDark() {
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  function currentTheme() {
     const t = document.documentElement.getAttribute('data-theme');
-    if (t === 'dark') return true; if (t === 'light') return false;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (t === 'dark' || t === 'light') return t;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
-  function updateIcon() { document.getElementById('theme-toggle').textContent = isDark() ? '☀' : '🌙'; }
+  function updateToggleIcon() {
+    document.getElementById('theme-toggle').textContent = currentTheme() === 'dark' ? '☀' : '☾';
+  }
   function toggleTheme() {
-    const next = isDark() ? 'light' : 'dark';
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('moniq-theme', next);
-    updateIcon();
+    updateToggleIcon();
   }
-  updateIcon();
+  updateToggleIcon();
 </script>
 </body>
 </html>

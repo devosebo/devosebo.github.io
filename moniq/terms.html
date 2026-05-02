@@ -3,96 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terms of Use – moniq</title>
+  <title>Terms of Use — Moniq</title>
+  <meta name="description" content="Terms of use for Moniq.">
+  <link rel="icon" type="image/png" href="assets/moniq-icon.png?v=20260424">
+  <link rel="apple-touch-icon" href="assets/moniq-icon.png?v=20260424">
   <script>
     const saved = localStorage.getItem('moniq-theme');
     if (saved) document.documentElement.setAttribute('data-theme', saved);
   </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --bg:#fff; --text:#1a1a1a; --text-secondary:#888; --link:#0066cc; --footer-border:#eee; --toggle-bg:#f0f0f0; --toggle-border:#ddd; }
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) { --bg:#111; --text:#e8e8e8; --text-secondary:#777; --link:#4da6ff; --footer-border:#2e2e2e; --toggle-bg:#2a2a2a; --toggle-border:#3a3a3a; }
+    :root {
+      color-scheme: light dark;
+      --bg:#f6f3ec; --ink:#16120d; --ink-2:rgba(22,18,13,0.7); --ink-3:rgba(22,18,13,0.45);
+      --hair:rgba(22,18,13,0.1); --hair-strong:rgba(22,18,13,0.18);
+      --surface:#ffffff; --link:#0b7a57;
+      --toggle-bg:rgba(22,18,13,0.06); --toggle-border:rgba(22,18,13,0.14);
     }
-    html[data-theme="dark"] { --bg:#111; --text:#e8e8e8; --text-secondary:#777; --link:#4da6ff; --footer-border:#2e2e2e; --toggle-bg:#2a2a2a; --toggle-border:#3a3a3a; }
-    html[data-theme="light"] { --bg:#fff; --text:#1a1a1a; --text-secondary:#888; --link:#0066cc; --footer-border:#eee; --toggle-bg:#f0f0f0; --toggle-border:#ddd; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg:#0b0d0f; --ink:#f2f0ec; --ink-2:rgba(242,240,236,0.7); --ink-3:rgba(242,240,236,0.44);
+        --hair:rgba(255,255,255,0.08); --hair-strong:rgba(255,255,255,0.16);
+        --surface:#141719; --link:#35d49f;
+        --toggle-bg:rgba(255,255,255,0.06); --toggle-border:rgba(255,255,255,0.12);
+      }
+    }
+    html[data-theme="dark"] {
+      --bg:#0b0d0f; --ink:#f2f0ec; --ink-2:rgba(242,240,236,0.7); --ink-3:rgba(242,240,236,0.44);
+      --hair:rgba(255,255,255,0.08); --hair-strong:rgba(255,255,255,0.16);
+      --surface:#141719; --link:#35d49f;
+      --toggle-bg:rgba(255,255,255,0.06); --toggle-border:rgba(255,255,255,0.12);
+    }
 
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.7; color: var(--text); background: var(--bg); padding: 48px 24px 80px; max-width: 680px; margin: 0 auto; }
-    #theme-toggle { position: fixed; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--toggle-border); background: var(--toggle-bg); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-    #theme-toggle:hover { opacity: 0.8; }
-    header { margin-bottom: 40px; }
-    header a { font-size: 14px; color: var(--text-secondary); text-decoration: none; }
-    header a:hover { color: var(--text); }
-    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-    .meta { font-size: 14px; color: var(--text-secondary); margin-bottom: 40px; }
-    h2 { font-size: 18px; font-weight: 600; margin-top: 36px; margin-bottom: 8px; }
-    p { margin-bottom: 16px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.65; color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; max-width: 680px; margin: 0 auto; padding: 32px 24px 80px; }
+    nav { display:flex; justify-content:space-between; align-items:center; margin-bottom: 48px; }
+    .brand { display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--ink); text-decoration:none; }
+    .brand-icon { width:22px; height:22px; border-radius:5px; overflow:hidden; display:block; }
+    .brand-icon img { width:100%; height:100%; display:block; }
+    #theme-toggle { width:32px; height:32px; border-radius:50%; border:1px solid var(--toggle-border); background:var(--toggle-bg); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--ink); }
+    #theme-toggle:hover { background: var(--hair-strong); }
+    h1 { font-size: 34px; letter-spacing: -0.025em; font-weight: 600; margin-bottom: 8px; }
+    .meta { font-size: 13.5px; color: var(--ink-3); margin-bottom: 36px; }
+    h2 { font-size: 18px; font-weight: 600; margin-top: 34px; margin-bottom: 10px; letter-spacing: -0.01em; }
+    p { margin-bottom: 16px; color: var(--ink-2); }
     a { color: var(--link); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--footer-border); font-size: 14px; color: var(--text-secondary); }
-    footer a { color: var(--text-secondary); }
-    footer a:hover { color: var(--text); }
+    footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--hair); font-size: 13.5px; color: var(--ink-3); display: flex; gap: 18px; flex-wrap: wrap; }
+    footer a { color: var(--ink-3); }
+    footer a:hover { color: var(--ink); text-decoration: none; }
   </style>
 </head>
 <body>
 
-<button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color scheme"></button>
-
-<header><a href="../moniq/">&larr; moniq</a></header>
+<nav>
+  <a class="brand" href="./">
+    <span class="brand-icon">
+      <img src="assets/moniq-icon.png?v=20260424" alt="">
+    </span>
+    <span data-brand>Moniq</span>
+  </a>
+  <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color scheme"></button>
+</nav>
 
 <h1>Terms of Use</h1>
-<p class="meta">Last updated: April 9, 2026</p>
+<p class="meta">Last updated: April 23, 2026</p>
 
-<p>By downloading or using moniq, you agree to these terms. Please read them.</p>
+<p>By downloading or using <span data-brand>Moniq</span>, you agree to these terms. Please read them.</p>
 
-<h2>Not Financial Advice</h2>
-<p>moniq is a personal budgeting and expense-tracking tool. It is provided for informational and organizational purposes only. Nothing in the app constitutes financial, investment, tax, or legal advice. You are solely responsible for any financial decisions you make.</p>
+<h2>Not financial advice</h2>
+<p><span data-brand>Moniq</span> is a personal budgeting and expense-tracking tool. It is provided for informational and organizational purposes only. Nothing in the app constitutes financial, investment, tax, or legal advice. You are solely responsible for any financial decisions you make.</p>
 
-<h2>No Warranty</h2>
-<p>moniq is provided "as is" without warranty of any kind, express or implied. Sebastian Vogel does not warrant that the app will be error-free, uninterrupted, or that calculations will always be accurate. You use the app at your own risk.</p>
+<h2>No warranty</h2>
+<p><span data-brand>Moniq</span> is provided "as is" without warranty of any kind, express or implied. Sebastian Vogel does not warrant that the app will be error-free, uninterrupted, or that calculations will always be accurate. You use the app at your own risk.</p>
 
-<h2>Limitation of Liability</h2>
-<p>To the fullest extent permitted by applicable law, Sebastian Vogel shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of moniq, including but not limited to financial decisions made based on data displayed in the app or loss of data.</p>
+<h2>Limitation of liability</h2>
+<p>To the fullest extent permitted by applicable law, Sebastian Vogel shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of <span data-brand>Moniq</span>, including but not limited to financial decisions made based on data displayed in the app or loss of data.</p>
 
-<h2>Acceptable Use</h2>
-<p>moniq is licensed for personal, non-commercial use only. You may not copy, modify, distribute, sell, or reverse-engineer any part of the app.</p>
+<h2>Acceptable use</h2>
+<p><span data-brand>Moniq</span> is licensed for personal, non-commercial use only. You may not copy, modify, distribute, sell, or reverse-engineer any part of the app.</p>
 
-<h2>Changes to the App</h2>
-<p>Sebastian Vogel reserves the right to modify, suspend, or discontinue moniq at any time without notice. Features may be added, changed, or removed in future updates.</p>
+<h2>Changes to the app</h2>
+<p>Sebastian Vogel reserves the right to modify, suspend, or discontinue <span data-brand>Moniq</span> at any time without notice. Features may be added, changed, or removed in future updates.</p>
 
-<h2>Changes to These Terms</h2>
-<p>These terms may be updated from time to time. The current version will always be available at this URL. Continued use of moniq after changes are posted constitutes your acceptance of the revised terms.</p>
+<h2>Changes to these terms</h2>
+<p>These terms may be updated from time to time. The current version will always be available at this URL. Continued use of <span data-brand>Moniq</span> after changes are posted constitutes acceptance of the revised terms.</p>
 
-<h2>Free App</h2>
-<p>moniq is currently free to download and use. Sebastian Vogel reserves the right to introduce optional paid features in the future. Any such changes will not affect existing free functionality without notice.</p>
+<h2>Free app</h2>
+<p><span data-brand>Moniq</span> is currently free to download and use. Sebastian Vogel reserves the right to introduce optional paid features in the future. Any such changes will not affect existing free functionality without notice.</p>
 
-<h2>Governing Law</h2>
+<h2>Governing law</h2>
 <p>These terms are governed by the laws of the Republic of Austria. Any disputes shall be subject to the exclusive jurisdiction of the courts in Austria.</p>
 
 <h2>Contact</h2>
 <p>Questions about these terms:<br>
 Sebastian Vogel<br>
-<a href="mailto:grid_napkin_1h@icloud.com">grid_napkin_1h@icloud.com</a></p>
+<a href="/cdn-cgi/l/email-protection#4e293c272a11202f3e252720117f260e272d22213b2a602d2123"><span class="__cf_email__" data-cfemail="01667368655e6f60716a686f5e30694168626d6e74652f626e6c">[email&#160;protected]</span></a></p>
 
 <footer>
-  <a href="../moniq/">moniq</a> &middot;
+  <a href="./">← <span data-brand>Moniq</span></a>
   <a href="privacy.html">Privacy Policy</a>
 </footer>
 
-<script>
-  function isDark() {
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  function currentTheme() {
     const t = document.documentElement.getAttribute('data-theme');
-    if (t === 'dark') return true; if (t === 'light') return false;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (t === 'dark' || t === 'light') return t;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
-  function updateIcon() { document.getElementById('theme-toggle').textContent = isDark() ? '☀' : '🌙'; }
+  function updateToggleIcon() {
+    document.getElementById('theme-toggle').textContent = currentTheme() === 'dark' ? '☀' : '☾';
+  }
   function toggleTheme() {
-    const next = isDark() ? 'light' : 'dark';
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('moniq-theme', next);
-    updateIcon();
+    updateToggleIcon();
   }
-  updateIcon();
+  updateToggleIcon();
 </script>
 </body>
 </html>

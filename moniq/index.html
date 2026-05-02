@@ -2,9 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>moniq – Personal Finance Tracker</title>
-  <meta name="description" content="moniq is a local-first finance app for quickly logging income and expenses, managing recurring transactions, and reviewing spending insights.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Moniq — Personal finance, simplified.</title>
+  <meta name="description" content="A local-only expense logger for people who value speed, privacy, and simplicity. Your data stays on your device.">
+  <meta property="og:title" content="Moniq — Personal finance, simplified.">
+  <meta property="og:description" content="A local-only expense logger for iPhone. Speed, privacy, simplicity.">
+  <meta property="og:image" content="assets/moniq-icon.png?v=20260424">
+  <link rel="icon" type="image/png" href="assets/moniq-icon.png?v=20260424">
+  <link rel="apple-touch-icon" href="assets/moniq-icon.png?v=20260424">
   <script>
     // Apply saved theme before paint to avoid flash
     const saved = localStorage.getItem('moniq-theme');
@@ -14,165 +19,497 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #ffffff;
-      --bg-alt: #f7f7f7;
-      --text: #1a1a1a;
-      --text-secondary: #555;
-      --text-muted: #aaa;
-      --card-bg: #ffffff;
-      --card-border: transparent;
-      --pill-bg: #f0f0f0;
-      --pill-text: #444;
-      --footer-border: #eee;
-      --cta-bg: #1a1a1a;
-      --cta-text: #ffffff;
-      --icon-top: #E08060;
-      --icon-bottom: #C06840;
-      --icon-m: rgba(255,255,255,0.92);
-      --toggle-bg: #f0f0f0;
-      --toggle-border: #ddd;
+      color-scheme: light dark;
+      /* light theme (default) */
+      --bg: #f6f3ec;
+      --bg-2: #efeae0;
+      --ink: #16120d;
+      --ink-2: rgba(22, 18, 13, 0.66);
+      --ink-3: rgba(22, 18, 13, 0.45);
+      --hair: rgba(22, 18, 13, 0.1);
+      --hair-strong: rgba(22, 18, 13, 0.18);
+      --surface: #ffffff;
+      --surface-2: #faf7f0;
+      --cta-bg: #16120d;
+      --cta-ink: #f6f3ec;
+      --accent-green: #0b7a57;
+      --accent-red: #c03a46;
+      --brand-green: #16b884;
+      --brand-red: #ff4d5a;
+      --phone-frame: #1a1510;
+      --phone-bg: #f6f3ec;
+      --phone-ink: #16120d;
+      --phone-hair: rgba(22,18,13,0.08);
+      --glow-a: rgba(22, 184, 132, 0.12);
+      --glow-b: rgba(255, 77, 90, 0.10);
+      --toggle-bg: rgba(22,18,13,0.06);
+      --toggle-border: rgba(22,18,13,0.14);
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
-        --bg: #111111; --bg-alt: #1a1a1a; --text: #f0f0f0; --text-secondary: #aaa;
-        --text-muted: #666; --card-bg: #222222; --card-border: #2e2e2e;
-        --pill-bg: #2a2a2a; --pill-text: #ccc; --footer-border: #2e2e2e;
-        --cta-bg: #E08060; --cta-text: #ffffff;
-        --icon-top: #1E1612; --icon-bottom: #2A1E16; --icon-m: #D97757;
-        --toggle-bg: #2a2a2a; --toggle-border: #3a3a3a;
+        --bg: #0b0d0f;
+        --bg-2: #111417;
+        --ink: #f2f0ec;
+        --ink-2: rgba(242, 240, 236, 0.66);
+        --ink-3: rgba(242, 240, 236, 0.44);
+        --hair: rgba(255, 255, 255, 0.08);
+        --hair-strong: rgba(255, 255, 255, 0.16);
+        --surface: #141719;
+        --surface-2: #1a1d20;
+        --cta-bg: #f2f0ec;
+        --cta-ink: #0b0d0f;
+        --accent-green: #35d49f;
+        --accent-red: #ff7a84;
+        --phone-frame: #1d2025;
+        --phone-bg: #0f1316;
+        --phone-ink: #f2f0ec;
+        --phone-hair: rgba(255,255,255,0.06);
+        --glow-a: rgba(22, 184, 132, 0.20);
+        --glow-b: rgba(255, 77, 90, 0.16);
+        --toggle-bg: rgba(255,255,255,0.06);
+        --toggle-border: rgba(255,255,255,0.12);
       }
     }
     html[data-theme="dark"] {
-      --bg: #111111; --bg-alt: #1a1a1a; --text: #f0f0f0; --text-secondary: #aaa;
-      --text-muted: #666; --card-bg: #222222; --card-border: #2e2e2e;
-      --pill-bg: #2a2a2a; --pill-text: #ccc; --footer-border: #2e2e2e;
-      --cta-bg: #E08060; --cta-text: #ffffff;
-      --icon-top: #1E1612; --icon-bottom: #2A1E16; --icon-m: #D97757;
-      --toggle-bg: #2a2a2a; --toggle-border: #3a3a3a;
-    }
-    html[data-theme="light"] {
-      --bg: #ffffff; --bg-alt: #f7f7f7; --text: #1a1a1a; --text-secondary: #555;
-      --text-muted: #aaa; --card-bg: #ffffff; --card-border: transparent;
-      --pill-bg: #f0f0f0; --pill-text: #444; --footer-border: #eee;
-      --cta-bg: #1a1a1a; --cta-text: #ffffff;
-      --icon-top: #E08060; --icon-bottom: #C06840; --icon-m: rgba(255,255,255,0.92);
-      --toggle-bg: #f0f0f0; --toggle-border: #ddd;
+      --bg: #0b0d0f;
+      --bg-2: #111417;
+      --ink: #f2f0ec;
+      --ink-2: rgba(242, 240, 236, 0.66);
+      --ink-3: rgba(242, 240, 236, 0.44);
+      --hair: rgba(255, 255, 255, 0.08);
+      --hair-strong: rgba(255, 255, 255, 0.16);
+      --surface: #141719;
+      --surface-2: #1a1d20;
+      --cta-bg: #f2f0ec;
+      --cta-ink: #0b0d0f;
+      --accent-green: #35d49f;
+      --accent-red: #ff7a84;
+      --phone-frame: #1d2025;
+      --phone-bg: #0f1316;
+      --phone-ink: #f2f0ec;
+      --phone-hair: rgba(255,255,255,0.06);
+      --glow-a: rgba(22, 184, 132, 0.20);
+      --glow-b: rgba(255, 77, 90, 0.16);
+      --toggle-bg: rgba(255,255,255,0.06);
+      --toggle-border: rgba(255,255,255,0.12);
     }
 
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.7; color: var(--text); background: var(--bg); }
+    html, body { background: var(--bg); color: var(--ink); }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .num { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
 
-    /* Toggle */
+    /* ambient glow */
+    .glow {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 600px 380px at 18% 8%, var(--glow-a), transparent 60%),
+        radial-gradient(ellipse 600px 380px at 90% 14%, var(--glow-b), transparent 60%);
+    }
+    main, nav, footer { position: relative; z-index: 1; }
+
+    /* Nav */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; }
+    .brand-icon { width: 26px; height: 26px; border-radius: 6px; overflow: hidden; display: block; }
+    .brand-icon img { width: 100%; height: 100%; display: block; }
+    .brand-icon .dark-only, .brand-icon .light-only { display: none; }
+    html[data-theme="light"] .brand-icon .light-only { display: block; }
+    html[data-theme="dark"] .brand-icon .dark-only { display: block; }
+    @media (prefers-color-scheme: light) { html:not([data-theme="dark"]) .brand-icon .light-only { display: block; } }
+    @media (prefers-color-scheme: dark) { html:not([data-theme="light"]) .brand-icon .dark-only { display: block; } }
+
     #theme-toggle {
-      position: fixed; top: 16px; right: 16px; z-index: 100;
-      width: 36px; height: 36px; border-radius: 50%;
-      border: 1px solid var(--toggle-border); background: var(--toggle-bg);
-      cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s, border-color 0.2s;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--toggle-border);
+      background: var(--toggle-bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--ink);
+      transition: background 0.15s, border-color 0.15s;
     }
-    #theme-toggle:hover { opacity: 0.8; }
+    #theme-toggle:hover { background: var(--hair-strong); }
 
-    .hero { padding: 80px 24px 64px; max-width: 680px; margin: 0 auto; text-align: center; }
-    .app-icon { width: 96px; height: 96px; border-radius: 22px; display: inline-block; margin-bottom: 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.25); overflow: hidden; }
-    .app-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .app-icon .icon-dark { display: none; }
-    @media (prefers-color-scheme: dark) {
-      html:not([data-theme="light"]) .app-icon .icon-light { display: none; }
-      html:not([data-theme="light"]) .app-icon .icon-dark { display: block; }
+    /* Hero */
+    .hero {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 48px 24px 32px;
+      text-align: center;
     }
-    html[data-theme="dark"] .app-icon .icon-light { display: none; }
-    html[data-theme="dark"] .app-icon .icon-dark { display: block; }
-    html[data-theme="light"] .app-icon .icon-light { display: block; }
-    html[data-theme="light"] .app-icon .icon-dark { display: none; }
-    h1 { font-size: 48px; font-weight: 700; letter-spacing: -1px; margin-bottom: 12px; }
-    .tagline { font-size: 20px; color: var(--text-secondary); margin-bottom: 36px; max-width: 480px; margin-left: auto; margin-right: auto; }
-    .cta { display: inline-block; background: var(--cta-bg); color: var(--cta-text); padding: 14px 32px; border-radius: 100px; font-size: 16px; font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
-    .cta:hover { opacity: 0.8; }
-    .cta-note { font-size: 13px; color: var(--text-muted); margin-top: 12px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px 6px 8px;
+      border-radius: 99px;
+      border: 1px solid var(--hair-strong);
+      background: var(--surface);
+      font-size: 12.5px;
+      color: var(--ink-2);
+      margin-bottom: 28px;
+    }
+    .badge-dot {
+      width: 14px; height: 14px; border-radius: 99px;
+      background: linear-gradient(90deg, var(--brand-green) 50%, var(--brand-red) 50%);
+    }
+    h1 {
+      font-size: clamp(40px, 8vw, 84px);
+      line-height: 0.98;
+      letter-spacing: -0.035em;
+      font-weight: 600;
+      max-width: 900px;
+      margin: 0 auto 22px;
+    }
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--brand-green), var(--brand-red));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .lede {
+      font-size: clamp(16px, 2.2vw, 19px);
+      line-height: 1.55;
+      color: var(--ink-2);
+      max-width: 560px;
+      margin: 0 auto 32px;
+    }
+    .ctas { display: inline-flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--cta-bg);
+      color: var(--cta-ink);
+      padding: 13px 22px;
+      border-radius: 99px;
+      font-size: 14.5px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .cta:hover { opacity: 0.88; transform: translateY(-1px); }
+    .cta-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 20px;
+      border-radius: 99px;
+      font-size: 14.5px;
+      border: 1px solid var(--hair-strong);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .cta-ghost:hover { background: var(--toggle-bg); }
 
-    .features { background: var(--bg-alt); padding: 64px 24px; }
-    .features-inner { max-width: 680px; margin: 0 auto; }
-    .features h2 { font-size: 24px; font-weight: 700; margin-bottom: 32px; text-align: center; }
-    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 480px) { .feature-grid { grid-template-columns: 1fr; } h1 { font-size: 36px; } }
-    .feature-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 24px; }
-    .feature-icon { font-size: 28px; margin-bottom: 10px; }
-    .feature-title { font-weight: 600; margin-bottom: 4px; }
-    .feature-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+    /* Phone stage */
+    .stage {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+      justify-items: center;
+    }
+    .phone {
+      position: relative;
+      background: var(--phone-frame);
+      border-radius: 46px;
+      padding: 7px;
+      box-shadow: 0 30px 70px -30px rgba(0,0,0,0.45), 0 0 0 1px var(--hair);
+      width: 100%;
+      max-width: 300px;
+      overflow: hidden;
+    }
+    .phone.tilt-up { transform: translateY(32px); }
+    .phone img.shot {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 40px;
+    }
+    .phone-label {
+      position: absolute;
+      bottom: -28px;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
 
-    .privacy-callout { padding: 64px 24px; max-width: 680px; margin: 0 auto; text-align: center; }
-    .privacy-callout h2 { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
-    .privacy-callout p { color: var(--text-secondary); max-width: 480px; margin: 0 auto 24px; }
-    .pill { display: inline-block; background: var(--pill-bg); border-radius: 100px; padding: 6px 16px; font-size: 14px; color: var(--pill-text); margin: 4px; }
+    @media (max-width: 860px) {
+      .stage {
+        grid-template-columns: 1fr;
+        max-width: 320px;
+        gap: 56px;
+        padding: 32px 24px 70px;
+      }
+      .phone.tilt-up { transform: none; }
+      .phone { max-width: 300px; margin: 0 auto; }
+    }
 
-    footer { border-top: 1px solid var(--footer-border); padding: 32px 24px; max-width: 680px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--text-muted); flex-wrap: wrap; gap: 12px; }
-    footer a { color: var(--text-muted); text-decoration: none; }
-    footer a:hover { color: var(--text); }
-    .footer-links { display: flex; gap: 20px; }
+    /* Features strip */
+    .features {
+      border-top: 1px solid var(--hair);
+      border-bottom: 1px solid var(--hair);
+      background: var(--bg-2);
+    }
+    .features-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 56px 24px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .feat {
+      padding: 0 24px;
+      border-left: 1px solid var(--hair);
+    }
+    .feat:first-child { border-left: none; padding-left: 0; }
+    .feat-glyph { width: 24px; height: 24px; margin-bottom: 16px; color: var(--ink); }
+    .feat-t { font-size: 16px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.01em; }
+    .feat-d { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    @media (max-width: 860px) {
+      .features-inner {
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        padding: 40px 24px;
+      }
+      .feat { padding: 0; border-left: none; }
+    }
+    @media (max-width: 480px) {
+      .features-inner { grid-template-columns: 1fr; gap: 24px; }
+    }
+
+    /* Privacy section */
+    .privacy {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 96px 24px;
+      text-align: center;
+    }
+    .privacy-eye { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 22px; }
+    .privacy h2 {
+      font-size: clamp(28px, 5vw, 48px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      font-weight: 500;
+      max-width: 800px;
+      margin: 0 auto 22px;
+      text-wrap: balance;
+    }
+    .privacy h2 .accent { color: var(--accent-green); }
+    .privacy p {
+      font-size: 16px;
+      color: var(--ink-2);
+      max-width: 560px;
+      margin: 0 auto 32px;
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .pill {
+      font-size: 12.5px;
+      padding: 6px 13px;
+      border-radius: 99px;
+      background: var(--surface);
+      border: 1px solid var(--hair-strong);
+      color: var(--ink-2);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--hair);
+      padding: 28px 24px;
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px;
+      color: var(--ink-3);
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    footer a { color: var(--ink-3); text-decoration: none; }
+    footer a:hover { color: var(--ink); }
+    .foot-links { display: flex; gap: 22px; flex-wrap: wrap; }
+
+    @media (max-width: 480px) {
+      nav { padding: 16px 20px; }
+      .hero { padding: 32px 20px 20px; }
+      footer { padding: 24px 20px; justify-content: center; text-align: center; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
   </style>
 </head>
 <body>
 
-<button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color scheme"></button>
+<div class="glow" aria-hidden="true"></div>
 
-<section class="hero">
-  <div class="app-icon">
-    <img class="icon-light" src="assets/moniq-icon-light.png?v=20260416c" alt="moniq app icon">
-    <img class="icon-dark" src="assets/moniq-icon-dark.png?v=20260416c" alt="">
-  </div>
-  <h1>moniq</h1>
-  <p class="tagline">A local-first finance app for logging income and expenses, tracking recurring transactions, and understanding your spending.</p>
-  <a href="#" class="cta">Download on the App Store</a>
-  <p class="cta-note">Coming soon to the App Store</p>
-</section>
+<nav>
+  <a class="brand" href="./">
+    <span class="brand-icon">
+      <img class="light-only" src="assets/moniq-icon.png?v=20260424" alt="">
+      <img class="dark-only" src="assets/moniq-icon-dark.png?v=20260424" alt="">
+    </span>
+    <span data-brand>Moniq</span>
+  </a>
+  <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color scheme"></button>
+</nav>
 
-<section class="features">
-  <div class="features-inner">
-    <h2>Everything you need, nothing you don't</h2>
-    <div class="feature-grid">
-      <div class="feature-card"><div class="feature-icon">⚡️</div><div class="feature-title">Quick Logging</div><div class="feature-desc">Add transactions in seconds. Tap, categorize, done.</div></div>
-      <div class="feature-card"><div class="feature-icon">🔁</div><div class="feature-title">Recurring Transactions</div><div class="feature-desc">Track subscriptions, rent, and regular income automatically.</div></div>
-      <div class="feature-card"><div class="feature-icon">📊</div><div class="feature-title">Spending Insights</div><div class="feature-desc">See where your money goes with charts and category breakdowns.</div></div>
-      <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title">Budget Targets</div><div class="feature-desc">Set spending limits by category and track your progress.</div></div>
+<main>
+  <section class="hero">
+    <div class="badge">
+      <span class="badge-dot" aria-hidden="true"></span>
+      Available on the App Store
     </div>
-  </div>
-</section>
+    <h1>Personal finance,<br><em>simplified.</em></h1>
+    <p class="lede">A local-only expense logger for people who value speed, privacy, and simplicity. Your data stays on your device — always.</p>
+    <div class="ctas">
+      <a class="cta" href="https://apps.apple.com/us/app/moniq-simple-expense-tracker/id6762153392" target="_blank" rel="noopener">Download on the App Store →</a>
+      <a class="cta-ghost" href="#privacy">Read the privacy promise</a>
+    </div>
+  </section>
 
-<section class="privacy-callout">
-  <h2>Your data stays yours</h2>
-  <p>moniq stores everything locally on your device. No accounts, no cloud sync, no tracking. Your financial data never leaves your phone.</p>
-  <span class="pill">No account required</span>
-  <span class="pill">No analytics</span>
-  <span class="pill">No ads</span>
-  <span class="pill">Local storage only</span>
-</section>
+  <!-- Three screens: Enter · Insights · Transactions -->
+  <section class="stage" aria-label="App screenshots">
+    <div class="phone tilt-up">
+      <img class="shot" src="assets/screen-enter.png?v=20260424" alt="Moniq — Enter screen showing a new entry with category tiles and a numeric keypad">
+      <div class="phone-label">Enter</div>
+    </div>
+    <div class="phone">
+      <img class="shot" src="assets/screen-insights.png?v=20260424" alt="Moniq — Insights screen showing monthly income, expenses, savings, budget targets, and cash flow">
+      <div class="phone-label">Insights</div>
+    </div>
+    <div class="phone tilt-up">
+      <img class="shot" src="assets/screen-transactions.png?v=20260424" alt="Moniq — Transactions screen listing upcoming and past expenses for April 2026">
+      <div class="phone-label">Transactions</div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="features-inner">
+      <div class="feat">
+        <svg class="feat-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+        <div class="feat-t">Speed-first entry</div>
+        <div class="feat-d">Tap, categorize, done. No friction between you and your ledger.</div>
+      </div>
+      <div class="feat">
+        <svg class="feat-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+        <div class="feat-t">Recurring entries</div>
+        <div class="feat-d">Subscriptions, rent, regular income — set them once, forget about them.</div>
+      </div>
+      <div class="feat">
+        <svg class="feat-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <div class="feat-t">Local & private</div>
+        <div class="feat-d">No accounts. No logins. No tracking. Your data belongs to you.</div>
+      </div>
+      <div class="feat">
+        <svg class="feat-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+        <div class="feat-t">Full portability</div>
+        <div class="feat-d">Import and export your data any time. You're never locked in.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="privacy" id="privacy">
+    <div class="privacy-eye">— The promise —</div>
+    <h2>Your data <span class="accent">belongs to you.</span></h2>
+    <p>Moniq stores everything locally on your device. No accounts, no analytics, no ads. If iCloud sync arrives in the future, it will stay strictly between you and Apple — never us.</p>
+    <div class="pill-row">
+      <span class="pill">No account required</span>
+      <span class="pill">No analytics</span>
+      <span class="pill">No ads</span>
+      <span class="pill">CSV import &amp; export</span>
+    </div>
+  </section>
+</main>
 
 <footer>
-  <span>&copy; 2026 Sebastian Vogel</span>
-  <div class="footer-links">
-    <a href="privacy.html">Privacy Policy</a>
-    <a href="terms.html">Terms of Use</a>
+  <span>© 2026 Sebastian Vogel</span>
+  <div class="foot-links">
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
     <span id="_cl"></span>
   </div>
 </footer>
 
 <script>
-  function isDark() {
-    const theme = document.documentElement.getAttribute('data-theme');
-    if (theme === 'dark') return true;
-    if (theme === 'light') return false;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  // Three-state theme: 'dark' | 'light' | null (auto/system)
+  function storedTheme() {
+    const v = localStorage.getItem('moniq-theme');
+    return (v === 'dark' || v === 'light') ? v : null;
   }
-  function updateIcon() {
-    document.getElementById('theme-toggle').textContent = isDark() ? '☀' : '🌙';
+  function effectiveTheme() {
+    return storedTheme() || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+  function applyTheme() {
+    const stored = storedTheme();
+    if (stored) document.documentElement.setAttribute('data-theme', stored);
+    else document.documentElement.removeAttribute('data-theme');
+    updateToggleIcon();
+  }
+  function updateToggleIcon() {
+    const btn = document.getElementById('theme-toggle');
+    const stored = storedTheme();
+    // Glyph shows the CURRENT mode; click advances to the next
+    if (stored === 'dark')       { btn.textContent = '\u263E'; btn.title = 'Theme: Dark \u00B7 click for Light'; }
+    else if (stored === 'light') { btn.textContent = '\u2600'; btn.title = 'Theme: Light \u00B7 click for Auto';  }
+    else                         { btn.textContent = '\u25D0'; btn.title = 'Theme: Auto (System) \u00B7 click for Dark'; }
   }
   function toggleTheme() {
-    const next = isDark() ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('moniq-theme', next);
-    updateIcon();
+    // Cycle: auto \u2192 dark \u2192 light \u2192 auto
+    const stored = storedTheme();
+    if (stored === null)        localStorage.setItem('moniq-theme', 'dark');
+    else if (stored === 'dark') localStorage.setItem('moniq-theme', 'light');
+    else                        localStorage.removeItem('moniq-theme');
+    applyTheme();
   }
-  updateIcon();
-  (function(){var _e=[103,114,105,100,95,110,97,112,107,105,110,95,49,104,64,105,99,108,111,117,100,46,99,111,109];var _a=_e.map(function(c){return String.fromCharCode(c);}).join('');document.getElementById('_cl').innerHTML='<a href="mailto:'+_a+'">Contact</a>';})();
+  applyTheme();
+  // While in Auto, respond to system changes live
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (!storedTheme()) applyTheme();
+  });
+  // Obfuscated contact link
+  (function(){
+    var e=[103,114,105,100,95,110,97,112,107,105,110,95,49,104,64,105,99,108,111,117,100,46,99,111,109];
+    var a=e.map(function(c){return String.fromCharCode(c);}).join('');
+    document.getElementById('_cl').innerHTML='<a href="mailto:'+a+'">Contact</a>';
+  })();
 </script>
+
 </body>
 </html>
