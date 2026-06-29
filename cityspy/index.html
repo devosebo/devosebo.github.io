@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CITYSPY — guess the city from above</title>
+<style>
+  :root {
+    --bg: #0a0e14;
+    --panel: #11161f;
+    --panel-border: #1f2733;
+    --cream: #f4ead0;
+    --amber: #ffb84d;
+    --amber-dim: #4d3a1f;
+    --teal: #3a8fb0;
+    --teal-dim: #1f3a45;
+    --text: #e8e8e8;
+    --text-dim: #8a93a3;
+    --danger: #e85d5d;
+    --good: #5de8a0;
+    --mono: 'SF Mono', 'JetBrains Mono', 'Courier New', monospace;
+    --sans: -apple-system, 'Inter', 'Helvetica Neue', sans-serif;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overscroll-behavior: none;
+    height: 100%;
+  }
+
+  #app {
+    max-width: 980px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 14px 24px;
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    padding: 18px 4px 12px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--panel-border);
+    margin-bottom: 16px;
+  }
+  .logo {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: 19px;
+    letter-spacing: 0.02em;
+    color: var(--cream);
+  }
+  .logo span { color: var(--amber); }
+  .day-counter {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  /* ---------- Round progress ---------- */
+  .round-track {
+    display: flex;
+    gap: 6px;
+    padding: 0 4px 18px;
+  }
+  .round-dot {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--panel-border);
+    position: relative;
+    overflow: hidden;
+  }
+  .round-dot.done { background: var(--good); }
+  .round-dot.active { background: var(--panel-border); }
+  .round-dot.active::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--amber);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+
+  .round-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    padding: 0 4px 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .diff-tag {
+    padding: 1px 7px;
+    border-radius: 3px;
+    font-size: 10px;
+  }
+  .diff-easy { background: var(--teal-dim); color: var(--teal); }
+  .diff-medium { background: #3a3520; color: #d4c45a; }
+  .diff-hard { background: #3a1f24; color: var(--danger); }
+
+  /* ---------- Main split view ---------- */
+  .stage {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+  }
+  @media (max-width: 720px) {
+    .stage { flex-direction: column; }
+  }
+
+  .pane {
+    background: var(--panel);
+    border-radius: 10px;
+    border: 1px solid var(--panel-border);
+    overflow: hidden;
+    position: relative;
+    transition: border-color .4s ease, box-shadow .4s ease;
+  }
+  .image-pane {
+    flex: 1.1;
+    min-height: 280px;
+    aspect-ratio: 1/1;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 1px var(--teal-dim), 0 0 24px -8px var(--teal);
+  }
+  .image-pane.closeup-unlocked {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 1px var(--amber-dim), 0 0 24px -8px var(--amber);
+  }
+
+  .pane-tag {
+    position: absolute;
+    top: 10px; left: 10px;
+    z-index: 5;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 4px;
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(31,58,69,0.85);
+    color: var(--teal);
+  }
+  .pane-tag.closeup { background: rgba(77,58,31,0.85); color: var(--amber); }
+  .pane-tag::before { content: '●'; font-size: 8px; }
+
+  #img-container {
+    width: 100%; height: 100%;
+    position: relative;
+    background: #060809;
+    overflow: hidden;
+  }
+  .tile-row { display: flex; }
+  .tile-row img {
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+  }
+  #img-grid {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .loading-spin {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .map-pane {
+    flex: 1;
+    min-height: 280px;
+    position: relative;
+  }
+  @media (max-width: 720px) {
+    .map-pane { aspect-ratio: 1/1; min-height: unset; }
+  }
+  #world-map {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    background: #06141a;
+  }
+  /* Leaflet's own zoom control gets restyled to match the rest of the UI */
+  .leaflet-control-zoom a {
+    background: rgba(17,22,31,0.9) !important;
+    color: var(--text) !important;
+    border-color: var(--panel-border) !important;
+  }
+  .leaflet-control-zoom a:hover {
+    color: var(--amber) !important;
+  }
+  .map-reset-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    z-index: 500;
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--panel-border);
+    background: rgba(17,22,31,0.9);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .map-reset-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .map-hint {
+    position: absolute;
+    bottom: 8px; left: 10px;
+    z-index: 500;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    background: rgba(10,14,20,0.6);
+    padding: 3px 7px;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  .pin-icon { position: relative; }
+  .pin-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-sizing: border-box;
+  }
+  .pin-guess .pin-dot { background: var(--teal); }
+  .pin-truth .pin-dot {
+    background: var(--good);
+    width: 18px; height: 18px;
+    margin: -2px;
+    box-shadow: 0 0 0 4px rgba(93,232,160,0.35);
+  }
+  .pin-label {
+    position: absolute;
+    top: -22px; left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--good);
+    background: rgba(10,14,20,0.9);
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Controls under stage ---------- */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 4px 0;
+    align-items: stretch;
+  }
+
+  .zoom-stepper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 2px;
+  }
+  .zoom-step-btn {
+    width: 30px; height: 30px;
+    flex-shrink: 0;
+    border-radius: 7px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .zoom-step-btn:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
+  .zoom-step-btn:disabled { opacity: 0.3; cursor: default; }
+  .zoom-track {
+    flex: 1;
+    height: 5px;
+    background: var(--panel-border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .zoom-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 3px;
+    transition: width .2s ease;
+  }
+  .zoom-hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .reveal-card {
+    flex: 1;
+    min-width: 220px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .reveal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .reveal-head h3 {
+    margin: 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  .ceiling {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--amber);
+  }
+  .reveal-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 9px 10px;
+    font-family: var(--sans);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s ease;
+    margin-top: 6px;
+  }
+  .reveal-btn:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
+  .reveal-btn:disabled { opacity: 0.35; cursor: default; }
+  .reveal-btn .cost { color: var(--danger); font-family: var(--mono); font-size: 11px; }
+
+  .guess-card {
+    flex: 1.3;
+    min-width: 240px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .guess-card h3 {
+    margin: 0 0 2px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  #city-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 7px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+  }
+  #city-input:focus { outline: none; border-color: var(--teal); }
+  #autocomplete-list {
+    position: relative;
+  }
+  .ac-item {
+    padding: 7px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .ac-item:hover, .ac-item.sel { background: var(--panel-border); }
+
+  .pin-status {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .pin-status.set { color: var(--good); }
+
+  .lock-btn {
+    background: var(--amber);
+    color: #1a1206;
+    border: none;
+    border-radius: 7px;
+    padding: 11px;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform .1s ease, opacity .15s ease;
+    margin-top: auto;
+  }
+  .lock-btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .lock-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* ---------- Result overlay ---------- */
+  .result-card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-top: 14px;
+    animation: slideup .35s ease;
+  }
+  @keyframes slideup { from { opacity:0; transform: translateY(8px);} to { opacity:1; transform: translateY(0);} }
+  .result-answer-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--good);
+    margin-bottom: 4px;
+  }
+  .result-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .result-city {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--cream);
+  }
+  .result-pts {
+    font-family: var(--mono);
+    font-size: 22px;
+    color: var(--amber);
+    font-weight: 700;
+  }
+  .result-meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .result-fact {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    border-left: 2px solid var(--amber-dim);
+    padding-left: 10px;
+    margin-bottom: 14px;
+  }
+  .name-bonus { color: var(--good); }
+  .name-miss { color: var(--text-dim); }
+  .next-btn {
+    background: var(--cream);
+    color: #1a1206;
+    border: none;
+    border-radius: 7px;
+    padding: 10px 18px;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* ---------- Final summary ---------- */
+  .summary {
+    text-align: center;
+    padding: 30px 14px;
+  }
+  .summary-total {
+    font-family: var(--mono);
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--amber);
+    margin: 6px 0 16px;
+  }
+  .summary-breakdown {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .summary-chip {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+  .share-box {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px dashed var(--panel-border);
+    border-radius: 8px;
+    padding: 12px;
+    white-space: pre-wrap;
+    text-align: left;
+    max-width: 320px;
+    margin: 0 auto 16px;
+  }
+
+  footer {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    padding-top: 20px;
+    opacity: 0.6;
+  }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+
+<div id="app">
+  <header>
+    <div class="logo">CITY<span>SPY</span></div>
+    <div class="day-counter" id="day-counter">DAY #1</div>
+  </header>
+
+  <div id="game-screen">
+    <div class="round-track" id="round-track"></div>
+    <div class="round-label">
+      <span id="round-label-left">ROUND 1 / 3</span>
+      <span class="diff-tag" id="diff-tag">EASY</span>
+    </div>
+
+    <div class="stage">
+      <div class="pane image-pane" id="image-pane">
+        <div class="pane-tag" id="pane-tag">SATELLITE</div>
+        <div id="img-container">
+          <div class="loading-spin" id="loading-spin">loading imagery…</div>
+        </div>
+      </div>
+      <div class="pane map-pane">
+        <div id="world-map"></div>
+        <button class="map-reset-btn" onclick="mapResetView()" aria-label="Reset view" title="Reset view">⟲</button>
+        <div class="map-hint">Drag to pan · scroll/pinch to zoom · click to drop pin</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="reveal-card">
+        <div class="reveal-head">
+          <h3>Zoom</h3>
+          <span class="ceiling" id="ceiling-display">cap 1000</span>
+        </div>
+        <div class="zoom-stepper">
+          <button class="zoom-step-btn" id="zoom-out-btn" onclick="adjustZoom(-1)" aria-label="Zoom out">−</button>
+          <div class="zoom-track">
+            <div class="zoom-fill" id="zoom-fill"></div>
+          </div>
+          <button class="zoom-step-btn" id="zoom-in-btn" onclick="adjustZoom(1)" aria-label="Zoom in">+</button>
+        </div>
+        <div class="zoom-hint">Zooming in is free · zooming out lowers your score cap, permanently for this round</div>
+      </div>
+
+      <div class="guess-card">
+        <h3>Your guess</h3>
+        <input id="city-input" type="text" placeholder="Type a city name (optional bonus)…" autocomplete="off" oninput="onCityInput()">
+        <div id="autocomplete-list"></div>
+        <div class="pin-status" id="pin-status">📍 Click the map to place your pin</div>
+        <button class="lock-btn" id="lock-btn" disabled onclick="lockGuess()">Lock in guess</button>
+      </div>
+    </div>
+
+    <div id="result-zone"></div>
+  </div>
+
+  <div id="summary-screen" style="display:none"></div>
+
+  <footer>satellite imagery © Esri · made for fun, not affiliated</footer>
+</div>
+
+<script>
+/* =========================================================
+   CITYSPY — prototype
+   Satellite tiles: Esri World Imagery (no key, CC BY 4.0)
+   Day/night mode removed: free night-lights sources cap out
+   at ~740m/pixel native resolution, well below what Esri's
+   day imagery can show — kept the game on day-only for now.
+   ========================================================= */
+
+// ---------- City pool (placeholder set for prototype testing) ----------
+const CITY_POOL = {
+  easy: [
+    { name: "New York", country: "United States", lat: 40.7128, lon: -74.0060, fact: "Manhattan's street grid was laid out in 1811 and is visible from space at night as one of the brightest, most regular light patterns on Earth." },
+    { name: "Dubai", country: "United Arab Emirates", lat: 25.2048, lon: 55.2708, fact: "The Palm Jumeirah's artificial fronds are unmistakable from above, day or night." },
+    { name: "Venice", country: "Italy", lat: 45.4408, lon: 12.3155, fact: "Venice has no roads — its canal network is its street grid, making it one of the most distinctive aerial silhouettes in the world." }
+  ],
+  medium: [
+    { name: "Brussels", country: "Belgium", lat: 50.8503, lon: 4.3517, fact: "Brussels' road network roughly follows its old city walls, visible as a pentagon-ish ring around the historic centre." },
+    { name: "Chicago", country: "United States", lat: 41.8781, lon: -87.6298, fact: "Chicago's grid is interrupted by Lake Michigan's hard, dark edge — a strong night-lights clue." },
+    { name: "Vienna", country: "Austria", lat: 48.2082, lon: 16.3738, fact: "Vienna's Ringstrasse forms a near-perfect ring around the old town, a clear circular signature from above." }
+  ],
+  hard: [
+    { name: "Tashkent", country: "Uzbekistan", lat: 41.2995, lon: 69.2401, fact: "Tashkent was largely rebuilt after a 1966 earthquake, giving it wide, very regular Soviet-era boulevards." },
+    { name: "Kano", country: "Nigeria", lat: 12.0022, lon: 8.5920, fact: "Kano's old walled city core is one of the largest in sub-Saharan Africa, visible as a dense, irregular cluster." },
+    { name: "Tampere", country: "Finland", lat: 61.4978, lon: 23.7610, fact: "Tampere sits on a narrow isthmus between two large lakes, a key shape clue from above." }
+  ]
+};
+
+// Flat list for autocomplete (in real version this would be much bigger / independent of the answer pool)
+const ALL_CITY_NAMES = Object.values(CITY_POOL).flat().map(c => `${c.name}, ${c.country}`);
+
+// ---------- Daily deterministic selection ----------
+function dayIndex() {
+  const epoch = new Date(2026, 0, 1);
+  const now = new Date();
+  return Math.floor((now - epoch) / 86400000);
+}
+function pickDeterministic(arr, seed) {
+  // simple seeded pick so "today" is the same for everyone
+  const idx = Math.abs(seed) % arr.length;
+  return arr[idx];
+}
+
+const DI = dayIndex();
+const todaysRounds = [
+  { difficulty: "easy",   city: pickDeterministic(CITY_POOL.easy, DI) },
+  { difficulty: "medium", city: pickDeterministic(CITY_POOL.medium, DI + 7) },
+  { difficulty: "hard",   city: pickDeterministic(CITY_POOL.hard, DI + 13) },
+];
+
+document.getElementById('day-counter').textContent = `DAY #${DI}`;
+
+// ---------- State ----------
+let state = {
+  round: 0,
+  ceiling: 1000,
+  zoomStep: 0,            // current zoom step (0 = sharpest/closest)
+  maxZoomStepReached: 0,  // high-water mark — determines the ceiling permanently, even if you zoom back in
+  pin: null, // {lat, lon}
+  revealedTruth: null, // {lat, lon} — set once the round is locked in
+  nameGuess: null,
+  nameCorrect: false,
+  scores: [],
+};
+
+// Zoom range: starts sharp (street/building-block detail) and gets progressively wider.
+// Step 0 is the default — genuinely useful detail from the first frame. Every step OUT
+// costs points (permanently, via maxZoomStepReached), reflecting that wider views give
+// away more identifying context (urban layout, coastline, etc).
+// z15 ≈ ~1.2km across with a 256px tile at this grid size; z6 ≈ ~600km across.
+const ZOOM_LEVELS = [15, 13, 11, 9, 7, 6];
+const MAX_ZOOM_STEP = ZOOM_LEVELS.length - 1;
+
+// Score ceiling per zoom step reached — step 0 keeps the full 1000, each step out costs more.
+const ZOOM_CEILINGS = [1000, 850, 700, 550, 400, 250];
+
+// ---------- Tile math (Web Mercator XYZ) ----------
+function lon2tileX(lon, z) { return (lon + 180) / 360 * Math.pow(2, z); }
+function lat2tileY(lat, z) {
+  const rad = lat * Math.PI / 180;
+  return (1 - Math.log(Math.tan(rad) + 1/Math.cos(rad)) / Math.PI) / 2 * Math.pow(2, z);
+}
+
+function esriDayURL(z, x, y) {
+  return `https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+}
+
+function renderImage(city, zoomStep) {
+  const container = document.getElementById('img-container');
+  const rect = container.getBoundingClientRect();
+  const TILE_PX = 256; // native Esri tile size — never upscale these, or detail blurs
+
+  // Use enough tiles in each direction to comfortably cover the pane at native resolution.
+  // e.g. a 700px pane needs ceil(700/256)=3, plus 1 tile of margin each side for centering room.
+  const tilesNeeded = Math.ceil(Math.max(rect.width, rect.height) / TILE_PX) + 2;
+  const half = Math.floor(tilesNeeded / 2);
+
+  const z = ZOOM_LEVELS[zoomStep];
+  const cx = lon2tileX(city.lon, z);
+  const cy = lat2tileY(city.lat, z);
+  const tx = Math.floor(cx);
+  const ty = Math.floor(cy);
+
+  // grid of tiles centered on the city, offset so the exact point is centered in the pane
+  const wrap = document.createElement('div');
+  wrap.id = 'img-grid';
+  const offsetXpx = -(cx - tx - 0.5) * TILE_PX;
+  const offsetYpx = -(cy - ty - 0.5) * TILE_PX;
+
+  for (let row = -half; row <= half; row++) {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'tile-row';
+    for (let col = -half; col <= half; col++) {
+      const img = document.createElement('img');
+      img.width = TILE_PX; img.height = TILE_PX;
+      img.src = esriDayURL(z, tx + col, ty + row);
+      img.onerror = () => { img.style.background = '#1a1a1a'; };
+      rowDiv.appendChild(img);
+    }
+    wrap.appendChild(rowDiv);
+  }
+  wrap.style.transform = `translate(-50%, -50%) translate(${offsetXpx}px, ${offsetYpx}px)`;
+  container.innerHTML = '';
+  container.appendChild(wrap);
+}
+
+// ---------- World map: real Esri satellite tiles via Leaflet, click-to-pin ----------
+const leafletMap = L.map('world-map', {
+  center: [25, 10],
+  zoom: 2,
+  minZoom: 2,
+  maxZoom: 17,
+  worldCopyJump: true,
+  attributionControl: false,
+});
+
+L.tileLayer(
+  'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  { maxZoom: 19, noWrap: false }
+).addTo(leafletMap);
+
+let guessMarker = null;
+let truthMarker = null;
+let guessTruthLine = null;
+
+const guessIcon = L.divIcon({
+  className: 'pin-icon pin-guess',
+  html: '<div class="pin-dot"></div>',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+});
+const truthIcon = L.divIcon({
+  className: 'pin-icon pin-truth',
+  html: '<div class="pin-dot"></div><div class="pin-label">correct city</div>',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+});
+
+leafletMap.on('click', (e) => {
+  state.pin = { lat: e.latlng.lat, lon: e.latlng.lng };
+  if (guessMarker) leafletMap.removeLayer(guessMarker);
+  guessMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: guessIcon }).addTo(leafletMap);
+  document.getElementById('pin-status').textContent = `📍 Pin set: ${e.latlng.lat.toFixed(1)}°, ${e.latlng.lng.toFixed(1)}°`;
+  document.getElementById('pin-status').classList.add('set');
+  document.getElementById('lock-btn').disabled = false;
+});
+
+function mapResetView() {
+  leafletMap.setView([25, 10], 2);
+}
+
+// Called once a round is locked in: drop the truth marker and frame both pins.
+function showTruthOnMap(lat, lon) {
+  if (truthMarker) leafletMap.removeLayer(truthMarker);
+  truthMarker = L.marker([lat, lon], { icon: truthIcon }).addTo(leafletMap);
+
+  if (guessTruthLine) leafletMap.removeLayer(guessTruthLine);
+  if (state.pin) {
+    guessTruthLine = L.polyline([[state.pin.lat, state.pin.lon], [lat, lon]], {
+      color: 'rgba(255,255,255,0.5)', weight: 2, dashArray: '4,4',
+    }).addTo(leafletMap);
+    leafletMap.fitBounds([[state.pin.lat, state.pin.lon], [lat, lon]], { padding: [40, 40] });
+  } else {
+    leafletMap.setView([lat, lon], 6);
+  }
+}
+
+// Clears markers/lines at the start of each new round.
+function resetMapForNewRound() {
+  if (guessMarker) { leafletMap.removeLayer(guessMarker); guessMarker = null; }
+  if (truthMarker) { leafletMap.removeLayer(truthMarker); truthMarker = null; }
+  if (guessTruthLine) { leafletMap.removeLayer(guessTruthLine); guessTruthLine = null; }
+  mapResetView();
+}
+
+// ---------- Round lifecycle ----------
+function startRound(i) {
+  state.round = i;
+  state.ceiling = 1000;
+  state.zoomStep = 0;
+  state.maxZoomStepReached = 0;
+  state.pin = null;
+  state.nameGuess = null;
+  state.nameCorrect = false;
+  state.revealedTruth = null;
+  state.revealedTruthName = null;
+
+  const r = todaysRounds[i];
+
+  document.getElementById('round-label-left').textContent = `ROUND ${i+1} / 3`;
+  const tag = document.getElementById('diff-tag');
+  tag.textContent = r.difficulty.toUpperCase();
+  tag.className = 'diff-tag diff-' + r.difficulty;
+
+  updateRoundTrack();
+  updatePaneVisual();
+  renderImage(r.city, state.zoomStep);
+  updateZoomUI();
+  document.getElementById('ceiling-display').textContent = `cap ${state.ceiling}`;
+  document.getElementById('city-input').value = '';
+  document.getElementById('city-input').disabled = false;
+  document.getElementById('autocomplete-list').innerHTML = '';
+  document.getElementById('pin-status').textContent = '📍 Click the map to place your pin';
+  document.getElementById('pin-status').classList.remove('set');
+  document.getElementById('lock-btn').disabled = true;
+  document.getElementById('result-zone').innerHTML = '';
+
+  resetMapForNewRound();
+}
+
+function updatePaneVisual() {
+  const pane = document.getElementById('image-pane');
+  const tag = document.getElementById('pane-tag');
+  // sharpest step reads as a "close-up" accent; any zoomed-out step reads as standard satellite
+  const isCloseup = state.zoomStep === 0;
+  pane.classList.toggle('closeup-unlocked', isCloseup);
+  tag.classList.toggle('closeup', isCloseup);
+  tag.textContent = isCloseup ? 'CLOSE-UP' : 'SATELLITE';
+}
+
+function updateRoundTrack() {
+  const track = document.getElementById('round-track');
+  track.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'round-dot ' + (i < state.round ? 'done' : (i === state.round ? 'active' : ''));
+    track.appendChild(dot);
+  }
+}
+
+function updateZoomUI() {
+  // fill = how much you've zoomed IN relative to the widest view, so more fill = closer/sharper
+  const pct = ((MAX_ZOOM_STEP - state.zoomStep) / MAX_ZOOM_STEP) * 100;
+  document.getElementById('zoom-fill').style.width = pct + '%';
+  document.getElementById('zoom-out-btn').disabled = state.zoomStep >= MAX_ZOOM_STEP;
+  document.getElementById('zoom-in-btn').disabled = state.zoomStep <= 0;
+  document.getElementById('ceiling-display').textContent = `cap ${state.ceiling}`;
+}
+
+// Zoom in is always free and never raises the ceiling back up — only the furthest point
+// you've ever zoomed out to (maxZoomStepReached) determines your ceiling for the round.
+// Zoom out one step at a time; each new step reached costs points permanently.
+function adjustZoom(delta) {
+  const next = state.zoomStep + (delta > 0 ? -1 : 1); // "+" button zooms IN (lower step), "−" zooms OUT
+  if (next < 0 || next > MAX_ZOOM_STEP) return;
+  state.zoomStep = next;
+  if (state.zoomStep > state.maxZoomStepReached) {
+    state.maxZoomStepReached = state.zoomStep;
+    state.ceiling = ZOOM_CEILINGS[state.maxZoomStepReached];
+  }
+  updateZoomUI();
+  updatePaneVisual();
+  const r = todaysRounds[state.round];
+  renderImage(r.city, state.zoomStep);
+}
+
+// ---------- Autocomplete ----------
+function onCityInput() {
+  const val = document.getElementById('city-input').value.trim().toLowerCase();
+  const list = document.getElementById('autocomplete-list');
+  list.innerHTML = '';
+  if (!val) return;
+  const matches = ALL_CITY_NAMES.filter(n => n.toLowerCase().includes(val)).slice(0, 5);
+  matches.forEach(m => {
+    const item = document.createElement('div');
+    item.className = 'ac-item';
+    item.textContent = m;
+    item.onclick = () => {
+      document.getElementById('city-input').value = m;
+      list.innerHTML = '';
+      state.nameGuess = m;
+    };
+    list.appendChild(item);
+  });
+}
+
+// ---------- Scoring ----------
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function distanceScore(distKm, cap) {
+  // 1000 at 0km, decaying to 0 by 2000km, exponential-ish falloff
+  const raw = Math.max(0, 1000 * Math.exp(-distKm / 600));
+  return Math.round(Math.min(raw, cap) * (cap / 1000));
+}
+
+function lockGuess() {
+  const r = todaysRounds[state.round];
+  const dist = haversine(state.pin.lat, state.pin.lon, r.city.lat, r.city.lon);
+  const pinScore = distanceScore(dist, state.ceiling);
+
+  const typed = document.getElementById('city-input').value.trim().toLowerCase();
+  const correctName = `${r.city.name}, ${r.city.country}`.toLowerCase();
+  const nameCorrect = typed && (typed === correctName || typed === r.city.name.toLowerCase());
+  const nameBonus = nameCorrect ? 150 : 0;
+
+  const total = pinScore + nameBonus;
+  state.scores.push({ difficulty: r.difficulty, city: r.city.name, pinScore, nameBonus, total, dist });
+
+  showResult(r.city, dist, pinScore, nameBonus, total);
+
+  document.getElementById('zoom-in-btn').disabled = true;
+  document.getElementById('zoom-out-btn').disabled = true;
+  document.getElementById('lock-btn').disabled = true;
+  document.getElementById('city-input').disabled = true;
+}
+
+function showResult(city, dist, pinScore, nameBonus, total) {
+  const zone = document.getElementById('result-zone');
+  const nameWasCorrect = nameBonus > 0;
+  zone.innerHTML = `
+    <div class="result-card">
+      <div class="result-answer-label">The correct city was</div>
+      <div class="result-top">
+        <div class="result-city">${city.name}, ${city.country}</div>
+        <div class="result-pts">+${total}</div>
+      </div>
+      <div class="result-meta">
+        Your pin was ${dist < 1 ? 'spot on' : dist.toFixed(0) + ' km away'} (${pinScore} pts)
+        · name guess: ${nameWasCorrect ? `<span class="name-bonus">✓ correct (+${nameBonus})</span>` : '<span class="name-miss">✗ not guessed</span>'}
+      </div>
+      <div class="result-fact">${city.fact}</div>
+      <button class="next-btn" onclick="nextRound()">${state.round < 2 ? 'Next round →' : "See today's result →"}</button>
+    </div>
+  `;
+
+  // mark the true location and recenter the map so both pins are visible
+  state.revealedTruth = { lat: city.lat, lon: city.lon };
+  state.revealedTruthName = `${city.name}, ${city.country}`;
+  showTruthOnMap(city.lat, city.lon);
+}
+
+function nextRound() {
+  if (state.round < 2) {
+    startRound(state.round + 1);
+  } else {
+    showSummary();
+  }
+}
+
+function showSummary() {
+  document.getElementById('game-screen').style.display = 'none';
+  const total = state.scores.reduce((s, r) => s + r.total, 0);
+  const maxTotal = 3000 + 450; // 3x1000 pin cap + 3x150 name bonus, rough ceiling
+  const summary = document.getElementById('summary-screen');
+  summary.style.display = 'block';
+
+  const shareLines = state.scores.map(s => {
+    const bar = '🟩'.repeat(Math.round(s.total/1000*5)) + '⬜'.repeat(5 - Math.round(s.total/1000*5));
+    const nameMark = s.nameBonus > 0 ? '🏷️' : '';
+    return `${s.difficulty.padEnd(6)} ${bar} ${s.total} ${nameMark}`;
+  }).join('\n');
+
+  summary.innerHTML = `
+    <div class="summary">
+      <div class="day-counter">DAY #${DI} — COMPLETE</div>
+      <div class="summary-total">${total} pts</div>
+      <div class="summary-breakdown">
+        ${state.scores.map(s => `<div class="summary-chip">${s.difficulty}: ${s.total} ${s.nameBonus > 0 ? '<span class="name-bonus">· city named ✓</span>' : '<span class="name-miss">· city not named</span>'}</div>`).join('')}
+      </div>
+      <div class="share-box">CITYDARK #${DI}\n${shareLines}\nTotal: ${total} pts · 🏷️ = city correctly named</div>
+      <button class="next-btn" onclick="navigator.clipboard.writeText(document.querySelector('.share-box').textContent); this.textContent='Copied!'">Copy result to share</button>
+    </div>
+  `;
+}
+
+// ---------- Init ----------
+window.addEventListener('load', () => {
+  startRound(0);
+});
+</script>
+</body>
+</html>
