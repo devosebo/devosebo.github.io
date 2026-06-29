@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CITYSPY — guess the city from above</title>
+<title>CITYSPY — name the city before wheels-down</title>
 <style>
   :root {
     --bg: #0a0e14;
@@ -18,6 +18,8 @@
     --text-dim: #8a93a3;
     --danger: #e85d5d;
     --good: #5de8a0;
+    --sky-top: #2a4a63;
+    --sky-haze: #7c9fb5;
     --mono: 'SF Mono', 'JetBrains Mono', 'Courier New', monospace;
     --sans: -apple-system, 'Inter', 'Helvetica Neue', sans-serif;
   }
@@ -59,14 +61,18 @@
     color: var(--cream);
   }
   .logo span { color: var(--amber); }
-  .day-counter {
+  .header-right {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
     font-family: var(--mono);
     font-size: 11px;
     color: var(--text-dim);
     letter-spacing: 0.05em;
   }
+  .streak-chip { color: var(--amber); }
 
-  /* ---------- Round progress ---------- */
+  /* ---------- Leg progress ---------- */
   .round-track {
     display: flex;
     gap: 6px;
@@ -81,7 +87,6 @@
     overflow: hidden;
   }
   .round-dot.done { background: var(--good); }
-  .round-dot.active { background: var(--panel-border); }
   .round-dot.active::after {
     content: '';
     position: absolute; inset: 0;
@@ -127,14 +132,15 @@
     position: relative;
     transition: border-color .4s ease, box-shadow .4s ease;
   }
-  .image-pane {
+  .approach-pane {
     flex: 1.1;
     min-height: 280px;
     aspect-ratio: 1/1;
     border-color: var(--teal);
     box-shadow: 0 0 0 1px var(--teal-dim), 0 0 24px -8px var(--teal);
   }
-  .image-pane.closeup-unlocked {
+  /* As you descend toward the ground, the frame warms to amber. */
+  .approach-pane.low {
     border-color: var(--amber);
     box-shadow: 0 0 0 1px var(--amber-dim), 0 0 24px -8px var(--amber);
   }
@@ -156,34 +162,37 @@
     background: rgba(31,58,69,0.85);
     color: var(--teal);
   }
-  .pane-tag.closeup { background: rgba(77,58,31,0.85); color: var(--amber); }
-  .pane-tag::before { content: '●'; font-size: 8px; }
+  .pane-tag.low { background: rgba(77,58,31,0.85); color: var(--amber); }
+  .pane-tag::before { content: '\2708'; font-size: 10px; }
 
-  #img-container {
-    width: 100%; height: 100%;
-    position: relative;
-    background: #060809;
-    overflow: hidden;
-  }
-  .tile-row { display: flex; }
-  .tile-row img {
-    display: block;
-    user-select: none;
-    -webkit-user-drag: none;
-    pointer-events: none;
-  }
-  #img-grid {
+  #approach-map, #world-map {
     position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    width: 100%; height: 100%;
   }
+  #approach-map { background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-haze) 60%, #4a5a52 100%); }
+  #world-map { background: #06141a; }
 
-  .loading-spin {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text-dim);
-    font-family: var(--mono);
-    font-size: 11px;
+  /* Sky + atmospheric haze sold over the tilted satellite view */
+  .sky-haze {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background:
+      linear-gradient(to bottom,
+        rgba(20,32,45,0.55) 0%,
+        rgba(80,120,145,0.30) 22%,
+        rgba(124,159,181,0.10) 38%,
+        rgba(124,159,181,0) 52%);
+  }
+  .approach-frame {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    box-shadow: inset 0 0 70px -20px rgba(0,0,0,0.7);
+    border-radius: 10px;
   }
 
   .map-pane {
@@ -194,25 +203,11 @@
   @media (max-width: 720px) {
     .map-pane { aspect-ratio: 1/1; min-height: unset; }
   }
-  #world-map {
-    position: absolute;
-    inset: 0;
-    width: 100%; height: 100%;
-    background: #06141a;
-  }
-  /* Leaflet's own zoom control gets restyled to match the rest of the UI */
-  .leaflet-control-zoom a {
-    background: rgba(17,22,31,0.9) !important;
-    color: var(--text) !important;
-    border-color: var(--panel-border) !important;
-  }
-  .leaflet-control-zoom a:hover {
-    color: var(--amber) !important;
-  }
+  .maplibregl-ctrl-zoom-in, .maplibregl-ctrl-zoom-out { display: none; }
   .map-reset-btn {
     position: absolute;
     top: 10px; right: 10px;
-    z-index: 500;
+    z-index: 5;
     width: 30px; height: 30px;
     border-radius: 6px;
     border: 1px solid var(--panel-border);
@@ -227,7 +222,7 @@
   .map-hint {
     position: absolute;
     bottom: 8px; left: 10px;
-    z-index: 500;
+    z-index: 5;
     font-family: var(--mono);
     font-size: 10px;
     color: var(--text-dim);
@@ -247,7 +242,6 @@
   .pin-truth .pin-dot {
     background: var(--good);
     width: 18px; height: 18px;
-    margin: -2px;
     box-shadow: 0 0 0 4px rgba(93,232,160,0.35);
   }
   .pin-label {
@@ -273,58 +267,21 @@
     align-items: stretch;
   }
 
-  .zoom-stepper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 4px 0 2px;
-  }
-  .zoom-step-btn {
-    width: 30px; height: 30px;
-    flex-shrink: 0;
-    border-radius: 7px;
-    border: 1px solid var(--panel-border);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 16px;
-    line-height: 1;
-    cursor: pointer;
-  }
-  .zoom-step-btn:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
-  .zoom-step-btn:disabled { opacity: 0.3; cursor: default; }
-  .zoom-track {
-    flex: 1;
-    height: 5px;
-    background: var(--panel-border);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .zoom-fill {
-    height: 100%;
-    background: var(--teal);
-    border-radius: 3px;
-    transition: width .2s ease;
-  }
-  .zoom-hint {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-bottom: 10px;
-  }
-
-  .reveal-card {
+  .descend-card {
     flex: 1;
     min-width: 220px;
     background: var(--panel);
     border: 1px solid var(--panel-border);
     border-radius: 10px;
     padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
   }
   .reveal-head {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
   .reveal-head h3 {
     margin: 0;
@@ -339,22 +296,43 @@
     font-size: 13px;
     color: var(--amber);
   }
-  .reveal-btn {
+  /* Altitude ladder — fills downward as you descend */
+  .alt-track {
+    height: 6px;
+    background: var(--panel-border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .alt-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--teal), var(--amber));
+    border-radius: 3px;
+    transition: width .25s ease;
+  }
+  .alt-readout {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .descend-btn {
     width: 100%;
     background: transparent;
     border: 1px solid var(--panel-border);
     color: var(--text);
     border-radius: 7px;
-    padding: 9px 10px;
+    padding: 10px;
     font-family: var(--sans);
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
     transition: all .15s ease;
-    margin-top: 6px;
+    margin-top: auto;
   }
-  .reveal-btn:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
-  .reveal-btn:disabled { opacity: 0.35; cursor: default; }
-  .reveal-btn .cost { color: var(--danger); font-family: var(--mono); font-size: 11px; }
+  .descend-btn:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
+  .descend-btn:disabled { opacity: 0.35; cursor: default; }
+  .descend-btn .cost { color: var(--danger); font-family: var(--mono); font-size: 11px; }
 
   .guess-card {
     flex: 1.3;
@@ -386,9 +364,7 @@
     font-size: 14px;
   }
   #city-input:focus { outline: none; border-color: var(--teal); }
-  #autocomplete-list {
-    position: relative;
-  }
+  #autocomplete-list { position: relative; }
   .ac-item {
     padding: 7px 12px;
     font-size: 13px;
@@ -420,7 +396,7 @@
   .lock-btn:hover:not(:disabled) { transform: translateY(-1px); }
   .lock-btn:disabled { opacity: 0.3; cursor: default; }
 
-  /* ---------- Result overlay ---------- */
+  /* ---------- Result ---------- */
   .result-card {
     background: var(--panel);
     border: 1px solid var(--panel-border);
@@ -483,17 +459,24 @@
     cursor: pointer;
   }
 
-  /* ---------- Final summary ---------- */
+  /* ---------- Summary ---------- */
   .summary {
     text-align: center;
     padding: 30px 14px;
+  }
+  .summary-rank {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--cream);
+    margin-top: 6px;
   }
   .summary-total {
     font-family: var(--mono);
     font-size: 42px;
     font-weight: 700;
     color: var(--amber);
-    margin: 6px 0 16px;
+    margin: 2px 0 16px;
   }
   .summary-breakdown {
     display: flex;
@@ -519,8 +502,61 @@
     padding: 12px;
     white-space: pre-wrap;
     text-align: left;
-    max-width: 320px;
+    max-width: 340px;
     margin: 0 auto 16px;
+  }
+
+  /* ---------- Intro modal ---------- */
+  .intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(6,9,14,0.82);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .intro-card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 24px;
+    max-width: 380px;
+    animation: slideup .3s ease;
+  }
+  .intro-card h2 { margin: 0 0 4px; font-size: 20px; color: var(--cream); }
+  .intro-card h2 span { color: var(--amber); }
+  .intro-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+  .intro-step {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .intro-step .ico { font-size: 16px; flex-shrink: 0; }
+  .intro-start {
+    width: 100%;
+    margin-top: 6px;
+    background: var(--amber);
+    color: #1a1206;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
   }
 
   footer {
@@ -532,60 +568,58 @@
     opacity: 0.6;
   }
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 </head>
 <body>
 
 <div id="app">
   <header>
     <div class="logo">CITY<span>SPY</span></div>
-    <div class="day-counter" id="day-counter">DAY #1</div>
+    <div class="header-right">
+      <span class="streak-chip" id="streak-chip" style="display:none"></span>
+      <span id="day-counter">DAY #1</span>
+    </div>
   </header>
 
   <div id="game-screen">
     <div class="round-track" id="round-track"></div>
     <div class="round-label">
-      <span id="round-label-left">ROUND 1 / 3</span>
+      <span id="round-label-left">LEG 1 / 3</span>
       <span class="diff-tag" id="diff-tag">EASY</span>
     </div>
 
     <div class="stage">
-      <div class="pane image-pane" id="image-pane">
-        <div class="pane-tag" id="pane-tag">SATELLITE</div>
-        <div id="img-container">
-          <div class="loading-spin" id="loading-spin">loading imagery…</div>
-        </div>
+      <div class="pane approach-pane" id="approach-pane">
+        <div class="pane-tag" id="pane-tag">CRUISE</div>
+        <div id="approach-map"></div>
+        <div class="sky-haze"></div>
+        <div class="approach-frame"></div>
       </div>
       <div class="pane map-pane">
         <div id="world-map"></div>
-        <button class="map-reset-btn" onclick="mapResetView()" aria-label="Reset view" title="Reset view">⟲</button>
-        <div class="map-hint">Drag to pan · scroll/pinch to zoom · click to drop pin</div>
+        <button class="map-reset-btn" onclick="mapResetView()" aria-label="Reset map view" title="Reset view">&#8635;</button>
+        <div class="map-hint">Drag to pan &middot; scroll/pinch to zoom &middot; click to drop your pin</div>
       </div>
     </div>
 
     <div class="controls">
-      <div class="reveal-card">
+      <div class="descend-card">
         <div class="reveal-head">
-          <h3>Zoom</h3>
-          <span class="ceiling" id="ceiling-display">cap 1000</span>
+          <h3>Altitude</h3>
+          <span class="ceiling" id="ceiling-display">call now &rarr; up to 1000</span>
         </div>
-        <div class="zoom-stepper">
-          <button class="zoom-step-btn" id="zoom-out-btn" onclick="adjustZoom(-1)" aria-label="Zoom out">−</button>
-          <div class="zoom-track">
-            <div class="zoom-fill" id="zoom-fill"></div>
-          </div>
-          <button class="zoom-step-btn" id="zoom-in-btn" onclick="adjustZoom(1)" aria-label="Zoom in">+</button>
-        </div>
-        <div class="zoom-hint">Zooming in is free · zooming out lowers your score cap, permanently for this round</div>
+        <div class="alt-track"><div class="alt-fill" id="alt-fill" style="width:0%"></div></div>
+        <div class="alt-readout" id="alt-readout">Cruise &middot; the longer you wait to call it, the lower your score</div>
+        <button class="descend-btn" id="descend-btn" onclick="descend()">Descend &darr; <span class="cost" id="descend-cost"></span></button>
       </div>
 
       <div class="guess-card">
-        <h3>Your guess</h3>
-        <input id="city-input" type="text" placeholder="Type a city name (optional bonus)…" autocomplete="off" oninput="onCityInput()">
+        <h3>Make the call</h3>
+        <input id="city-input" type="text" placeholder="Name the city for a bonus (optional)&hellip;" autocomplete="off" aria-label="City name guess" oninput="onCityInput()" onkeydown="onCityKey(event)">
         <div id="autocomplete-list"></div>
-        <div class="pin-status" id="pin-status">📍 Click the map to place your pin</div>
-        <button class="lock-btn" id="lock-btn" disabled onclick="lockGuess()">Lock in guess</button>
+        <div class="pin-status" id="pin-status">&#128205; Click the map to mark where you think you are</div>
+        <button class="lock-btn" id="lock-btn" disabled onclick="lockGuess()">Lock in the call</button>
       </div>
     </div>
 
@@ -594,39 +628,67 @@
 
   <div id="summary-screen" style="display:none"></div>
 
-  <footer>satellite imagery © Esri · made for fun, not affiliated</footer>
+  <footer>satellite &copy; Esri &middot; built with MapLibre &middot; made for fun, not affiliated</footer>
 </div>
 
 <script>
 /* =========================================================
-   CITYSPY — prototype
-   Satellite tiles: Esri World Imagery (no key, CC BY 4.0)
-   Day/night mode removed: free night-lights sources cap out
-   at ~740m/pixel native resolution, well below what Esri's
-   day imagery can show — kept the game on day-only for now.
+   CITYSPY — name the city before wheels-down
+   Identity: you're on approach to a city. The view resolves
+   as you descend. The braver (higher) your call, the more
+   points — but descend too far and the score ceiling drops.
+   Imagery: Esri World Imagery (no key) rendered obliquely
+   via MapLibre GL with camera pitch, to read like the view
+   out an aircraft window.
    ========================================================= */
 
-// ---------- City pool (placeholder set for prototype testing) ----------
+// ---------- Answer pool (placeholder set for prototype testing) ----------
+// Each city carries a `fact` (shown in the post-landing debrief) and optional
+// name `aliases` so common spellings/abbreviations still earn the bonus.
 const CITY_POOL = {
   easy: [
-    { name: "New York", country: "United States", lat: 40.7128, lon: -74.0060, fact: "Manhattan's street grid was laid out in 1811 and is visible from space at night as one of the brightest, most regular light patterns on Earth." },
-    { name: "Dubai", country: "United Arab Emirates", lat: 25.2048, lon: 55.2708, fact: "The Palm Jumeirah's artificial fronds are unmistakable from above, day or night." },
-    { name: "Venice", country: "Italy", lat: 45.4408, lon: 12.3155, fact: "Venice has no roads — its canal network is its street grid, making it one of the most distinctive aerial silhouettes in the world." }
+    { name: "New York", country: "United States", lat: 40.7128, lon: -74.0060, aliases: ["nyc","newyorkcity"], fact: "Manhattan's 1811 street grid is one of the most regular, instantly recognisable urban patterns on the planet from the air." },
+    { name: "Dubai", country: "United Arab Emirates", lat: 25.2048, lon: 55.2708, fact: "The Palm Jumeirah's artificial fronds are unmistakable from any approach — there's nothing else shaped like it on Earth." },
+    { name: "Venice", country: "Italy", lat: 45.4408, lon: 12.3155, aliases: ["venezia"], fact: "Venice has no roads — its canal network IS its street grid, giving it one of the most distinctive silhouettes in the world." }
   ],
   medium: [
-    { name: "Brussels", country: "Belgium", lat: 50.8503, lon: 4.3517, fact: "Brussels' road network roughly follows its old city walls, visible as a pentagon-ish ring around the historic centre." },
-    { name: "Chicago", country: "United States", lat: 41.8781, lon: -87.6298, fact: "Chicago's grid is interrupted by Lake Michigan's hard, dark edge — a strong night-lights clue." },
-    { name: "Vienna", country: "Austria", lat: 48.2082, lon: 16.3738, fact: "Vienna's Ringstrasse forms a near-perfect ring around the old town, a clear circular signature from above." }
+    { name: "Brussels", country: "Belgium", lat: 50.8503, lon: 4.3517, aliases: ["bruxelles","brussel"], fact: "Brussels' inner ring road traces the line of its old city walls — a pentagon-ish loop around the historic centre." },
+    { name: "Chicago", country: "United States", lat: 41.8781, lon: -87.6298, fact: "Chicago's relentless grid stops dead at Lake Michigan's hard, dark shoreline — a strong directional clue on approach." },
+    { name: "Vienna", country: "Austria", lat: 48.2082, lon: 16.3738, aliases: ["wien"], fact: "Vienna's Ringstrasse forms a near-perfect ring around the old town — a clear circular signature from above." }
   ],
   hard: [
-    { name: "Tashkent", country: "Uzbekistan", lat: 41.2995, lon: 69.2401, fact: "Tashkent was largely rebuilt after a 1966 earthquake, giving it wide, very regular Soviet-era boulevards." },
-    { name: "Kano", country: "Nigeria", lat: 12.0022, lon: 8.5920, fact: "Kano's old walled city core is one of the largest in sub-Saharan Africa, visible as a dense, irregular cluster." },
-    { name: "Tampere", country: "Finland", lat: 61.4978, lon: 23.7610, fact: "Tampere sits on a narrow isthmus between two large lakes, a key shape clue from above." }
+    { name: "Tashkent", country: "Uzbekistan", lat: 41.2995, lon: 69.2401, fact: "Largely rebuilt after a 1966 earthquake, Tashkent has wide, unusually regular Soviet-era boulevards." },
+    { name: "Kano", country: "Nigeria", lat: 12.0022, lon: 8.5920, fact: "Kano's old walled core is one of the largest in sub-Saharan Africa — a dense, irregular cluster against the drier surroundings." },
+    { name: "Tampere", country: "Finland", lat: 61.4978, lon: 23.7610, fact: "Tampere sits on a narrow isthmus pinched between two large lakes — that waist of land is the key shape clue." }
   ]
 };
 
-// Flat list for autocomplete (in real version this would be much bigger / independent of the answer pool)
-const ALL_CITY_NAMES = Object.values(CITY_POOL).flat().map(c => `${c.name}, ${c.country}`);
+// ---------- Autocomplete gazetteer ----------
+// A broad list of world cities INDEPENDENT of the answer pool, so typing a
+// letter doesn't narrow things down to today's answer. (Real version would
+// load a full gazetteer; this curated set is enough to avoid spoilers.)
+const GAZETTEER = [
+  "Amsterdam, Netherlands","Athens, Greece","Atlanta, United States","Auckland, New Zealand","Bangkok, Thailand",
+  "Barcelona, Spain","Beijing, China","Belgrade, Serbia","Berlin, Germany","Bogota, Colombia","Boston, United States",
+  "Brisbane, Australia","Brussels, Belgium","Bucharest, Romania","Budapest, Hungary","Buenos Aires, Argentina",
+  "Cairo, Egypt","Cape Town, South Africa","Caracas, Venezuela","Casablanca, Morocco","Chicago, United States",
+  "Copenhagen, Denmark","Dakar, Senegal","Dallas, United States","Delhi, India","Denver, United States",
+  "Dhaka, Bangladesh","Doha, Qatar","Dubai, United Arab Emirates","Dublin, Ireland","Edinburgh, United Kingdom",
+  "Frankfurt, Germany","Geneva, Switzerland","Hamburg, Germany","Hanoi, Vietnam","Havana, Cuba","Helsinki, Finland",
+  "Hong Kong, China","Honolulu, United States","Houston, United States","Istanbul, Turkey","Jakarta, Indonesia",
+  "Jerusalem, Israel","Johannesburg, South Africa","Kano, Nigeria","Karachi, Pakistan","Kiev, Ukraine",
+  "Kuala Lumpur, Malaysia","Lagos, Nigeria","Las Vegas, United States","Lima, Peru","Lisbon, Portugal","London, United Kingdom",
+  "Los Angeles, United States","Madrid, Spain","Manila, Philippines","Marseille, France","Melbourne, Australia",
+  "Mexico City, Mexico","Miami, United States","Milan, Italy","Montreal, Canada","Moscow, Russia","Mumbai, India",
+  "Munich, Germany","Nairobi, Kenya","Naples, Italy","New York, United States","Osaka, Japan","Oslo, Norway",
+  "Paris, France","Perth, Australia","Philadelphia, United States","Phoenix, United States","Prague, Czech Republic",
+  "Reykjavik, Iceland","Riga, Latvia","Rio de Janeiro, Brazil","Riyadh, Saudi Arabia","Rome, Italy","Rotterdam, Netherlands",
+  "San Francisco, United States","Santiago, Chile","Sao Paulo, Brazil","Seattle, United States","Seoul, South Korea",
+  "Shanghai, China","Singapore, Singapore","Sofia, Bulgaria","Stockholm, Sweden","Sydney, Australia","Tampere, Finland",
+  "Tashkent, Uzbekistan","Tbilisi, Georgia","Tehran, Iran","Tel Aviv, Israel","Tokyo, Japan","Toronto, Canada",
+  "Valencia, Spain","Vancouver, Canada","Venice, Italy","Vienna, Austria","Warsaw, Poland","Washington, United States",
+  "Wellington, New Zealand","Zurich, Switzerland"
+];
 
 // ---------- Daily deterministic selection ----------
 function dayIndex() {
@@ -635,9 +697,7 @@ function dayIndex() {
   return Math.floor((now - epoch) / 86400000);
 }
 function pickDeterministic(arr, seed) {
-  // simple seeded pick so "today" is the same for everyone
-  const idx = Math.abs(seed) % arr.length;
-  return arr[idx];
+  return arr[Math.abs(seed) % arr.length];
 }
 
 const DI = dayIndex();
@@ -646,251 +706,297 @@ const todaysRounds = [
   { difficulty: "medium", city: pickDeterministic(CITY_POOL.medium, DI + 7) },
   { difficulty: "hard",   city: pickDeterministic(CITY_POOL.hard, DI + 13) },
 ];
+// A deterministic approach bearing per leg, so north isn't always up — closer
+// to a real arrival, and it stops players orienting by "up = north".
+const legBearings = todaysRounds.map((_, i) => (Math.abs(DI * 53 + i * 97) % 360));
 
 document.getElementById('day-counter').textContent = `DAY #${DI}`;
+
+// ---------- Descent profile ----------
+// Step 0 is cruise: ambiguous, but the full 1000-pt ceiling is available if you
+// can call it from up here. Descending is ONE-WAY (you can't climb on approach),
+// and each step trades clarity for a lower ceiling.
+const DESCENT = [
+  { tag: "CRUISE",       label: "Cruise &middot; FL360",     zoom: 8.8,  pitch: 38, ceiling: 1000 },
+  { tag: "DESCENDING",   label: "Descending &middot; FL220", zoom: 10.2, pitch: 45, ceiling: 850 },
+  { tag: "12,000 FT",    label: "12,000 ft",                 zoom: 11.5, pitch: 52, ceiling: 700 },
+  { tag: "7,000 FT",     label: "7,000 ft",                  zoom: 12.7, pitch: 58, ceiling: 550 },
+  { tag: "FINAL",        label: "Final approach",            zoom: 13.8, pitch: 63, ceiling: 400 },
+  { tag: "SHORT FINAL",  label: "Short final",               zoom: 14.9, pitch: 67, ceiling: 250 },
+];
+const MAX_STEP = DESCENT.length - 1;
+const NAME_BONUS = 150;
+const PER_LEG_MAX = 1000 + NAME_BONUS;
+const MAX_TOTAL = todaysRounds.length * PER_LEG_MAX;
 
 // ---------- State ----------
 let state = {
   round: 0,
-  ceiling: 1000,
-  zoomStep: 0,            // current zoom step (0 = sharpest/closest)
-  maxZoomStepReached: 0,  // high-water mark — determines the ceiling permanently, even if you zoom back in
-  pin: null, // {lat, lon}
-  revealedTruth: null, // {lat, lon} — set once the round is locked in
-  nameGuess: null,
-  nameCorrect: false,
+  step: 0,         // current descent step (0 = cruise, one-way downward)
+  pin: null,       // {lat, lon}
   scores: [],
 };
 
-// Zoom range: starts sharp (street/building-block detail) and gets progressively wider.
-// Step 0 is the default — genuinely useful detail from the first frame. Every step OUT
-// costs points (permanently, via maxZoomStepReached), reflecting that wider views give
-// away more identifying context (urban layout, coastline, etc).
-// z15 ≈ ~1.2km across with a 256px tile at this grid size; z6 ≈ ~600km across.
-const ZOOM_LEVELS = [15, 13, 11, 9, 7, 6];
-const MAX_ZOOM_STEP = ZOOM_LEVELS.length - 1;
+// ---------- Persistence ----------
+const LSK = 'cityspy.v1';
+function loadStore() { try { return JSON.parse(localStorage.getItem(LSK)) || {}; } catch (e) { return {}; } }
+function saveStore(o) { try { localStorage.setItem(LSK, JSON.stringify(o)); } catch (e) {} }
 
-// Score ceiling per zoom step reached — step 0 keeps the full 1000, each step out costs more.
-const ZOOM_CEILINGS = [1000, 850, 700, 550, 400, 250];
-
-// ---------- Tile math (Web Mercator XYZ) ----------
-function lon2tileX(lon, z) { return (lon + 180) / 360 * Math.pow(2, z); }
-function lat2tileY(lat, z) {
-  const rad = lat * Math.PI / 180;
-  return (1 - Math.log(Math.tan(rad) + 1/Math.cos(rad)) / Math.PI) / 2 * Math.pow(2, z);
-}
-
-function esriDayURL(z, x, y) {
-  return `https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
-}
-
-function renderImage(city, zoomStep) {
-  const container = document.getElementById('img-container');
-  const rect = container.getBoundingClientRect();
-  const TILE_PX = 256; // native Esri tile size — never upscale these, or detail blurs
-
-  // Use enough tiles in each direction to comfortably cover the pane at native resolution.
-  // e.g. a 700px pane needs ceil(700/256)=3, plus 1 tile of margin each side for centering room.
-  const tilesNeeded = Math.ceil(Math.max(rect.width, rect.height) / TILE_PX) + 2;
-  const half = Math.floor(tilesNeeded / 2);
-
-  const z = ZOOM_LEVELS[zoomStep];
-  const cx = lon2tileX(city.lon, z);
-  const cy = lat2tileY(city.lat, z);
-  const tx = Math.floor(cx);
-  const ty = Math.floor(cy);
-
-  // grid of tiles centered on the city, offset so the exact point is centered in the pane
-  const wrap = document.createElement('div');
-  wrap.id = 'img-grid';
-  const offsetXpx = -(cx - tx - 0.5) * TILE_PX;
-  const offsetYpx = -(cy - ty - 0.5) * TILE_PX;
-
-  for (let row = -half; row <= half; row++) {
-    const rowDiv = document.createElement('div');
-    rowDiv.className = 'tile-row';
-    for (let col = -half; col <= half; col++) {
-      const img = document.createElement('img');
-      img.width = TILE_PX; img.height = TILE_PX;
-      img.src = esriDayURL(z, tx + col, ty + row);
-      img.onerror = () => { img.style.background = '#1a1a1a'; };
-      rowDiv.appendChild(img);
-    }
-    wrap.appendChild(rowDiv);
+function recordCompletion(scores) {
+  const store = loadStore();
+  store.days = store.days || {};
+  if (!store.days[DI]) {
+    const total = scores.reduce((s, r) => s + r.total, 0);
+    // Streak: increment if yesterday was played, otherwise reset to 1.
+    const streak = (store.lastDay === DI - 1) ? (store.streak || 0) + 1 : 1;
+    store.days[DI] = { scores, total };
+    store.lastDay = DI;
+    store.streak = streak;
+    saveStore(store);
   }
-  wrap.style.transform = `translate(-50%, -50%) translate(${offsetXpx}px, ${offsetYpx}px)`;
-  container.innerHTML = '';
-  container.appendChild(wrap);
+  return store;
+}
+function currentStreak() {
+  const store = loadStore();
+  // A streak only "counts" today if the last completed day was today or yesterday.
+  if (store.lastDay === DI || store.lastDay === DI - 1) return store.streak || 0;
+  return 0;
+}
+function renderStreak() {
+  const s = currentStreak();
+  const chip = document.getElementById('streak-chip');
+  if (s > 1) { chip.style.display = ''; chip.textContent = `\u{1F525} ${s}`; }
 }
 
-// ---------- World map: real Esri satellite tiles via Leaflet, click-to-pin ----------
-const leafletMap = L.map('world-map', {
-  center: [25, 10],
-  zoom: 2,
-  minZoom: 2,
-  maxZoom: 17,
-  worldCopyJump: true,
+// ---------- MapLibre: shared satellite style ----------
+function satStyle(skyBg) {
+  return {
+    version: 8,
+    sources: {
+      esri: {
+        type: 'raster',
+        tiles: ['https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: 'Imagery &copy; Esri'
+      }
+    },
+    layers: [
+      { id: 'bg', type: 'background', paint: { 'background-color': skyBg } },
+      { id: 'esri', type: 'raster', source: 'esri' }
+    ]
+  };
+}
+
+// Clue map: oblique, non-interactive, driven entirely by descend().
+const approachMap = new maplibregl.Map({
+  container: 'approach-map',
+  style: satStyle('#7c9fb5'),
+  center: [todaysRounds[0].city.lon, todaysRounds[0].city.lat],
+  zoom: DESCENT[0].zoom,
+  pitch: DESCENT[0].pitch,
+  bearing: legBearings[0],
+  maxPitch: 85,
+  interactive: false,
   attributionControl: false,
 });
 
-L.tileLayer(
-  'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-  { maxZoom: 19, noWrap: false }
-).addTo(leafletMap);
-
-let guessMarker = null;
-let truthMarker = null;
-let guessTruthLine = null;
-
-const guessIcon = L.divIcon({
-  className: 'pin-icon pin-guess',
-  html: '<div class="pin-dot"></div>',
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
+// World map: flat, interactive, click to drop a pin.
+const worldMap = new maplibregl.Map({
+  container: 'world-map',
+  style: satStyle('#06141a'),
+  center: [10, 25],
+  zoom: 1.3,
+  maxZoom: 17,
+  attributionControl: false,
+  dragRotate: false,
 });
-const truthIcon = L.divIcon({
-  className: 'pin-icon pin-truth',
-  html: '<div class="pin-dot"></div><div class="pin-label">correct city</div>',
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
-});
+worldMap.touchZoomRotate.disableRotation();
 
-leafletMap.on('click', (e) => {
-  state.pin = { lat: e.latlng.lat, lon: e.latlng.lng };
-  if (guessMarker) leafletMap.removeLayer(guessMarker);
-  guessMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: guessIcon }).addTo(leafletMap);
-  document.getElementById('pin-status').textContent = `📍 Pin set: ${e.latlng.lat.toFixed(1)}°, ${e.latlng.lng.toFixed(1)}°`;
-  document.getElementById('pin-status').classList.add('set');
-  document.getElementById('lock-btn').disabled = false;
-});
+let guessMarker = null, truthMarker = null;
 
-function mapResetView() {
-  leafletMap.setView([25, 10], 2);
+function makeEl(cls, html) {
+  const d = document.createElement('div');
+  d.className = cls;
+  if (html) d.innerHTML = html;
+  return d;
 }
 
-// Called once a round is locked in: drop the truth marker and frame both pins.
-function showTruthOnMap(lat, lon) {
-  if (truthMarker) leafletMap.removeLayer(truthMarker);
-  truthMarker = L.marker([lat, lon], { icon: truthIcon }).addTo(leafletMap);
+worldMap.on('load', () => {
+  worldMap.addSource('route', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  worldMap.addLayer({
+    id: 'route', type: 'line', source: 'route',
+    paint: { 'line-color': 'rgba(255,255,255,0.6)', 'line-width': 2, 'line-dasharray': [2, 2] }
+  });
+});
 
-  if (guessTruthLine) leafletMap.removeLayer(guessTruthLine);
+worldMap.on('click', (e) => {
+  if (state.locked) return;
+  setPin(e.lngLat.lat, e.lngLat.lng);
+});
+
+function setPin(lat, lon) {
+  state.pin = { lat, lon };
+  if (guessMarker) guessMarker.remove();
+  guessMarker = new maplibregl.Marker({ element: makeEl('pin-icon pin-guess', '<div class="pin-dot"></div>'), anchor: 'center' })
+    .setLngLat([lon, lat]).addTo(worldMap);
+  const ps = document.getElementById('pin-status');
+  ps.textContent = `\u{1F4CD} Pin set: ${lat.toFixed(1)}°, ${lon.toFixed(1)}°`;
+  ps.classList.add('set');
+  document.getElementById('lock-btn').disabled = false;
+}
+
+function mapResetView() {
+  worldMap.flyTo({ center: [10, 25], zoom: 1.3, duration: 600 });
+}
+
+function showTruthOnMap(lat, lon) {
+  if (truthMarker) truthMarker.remove();
+  truthMarker = new maplibregl.Marker({
+    element: makeEl('pin-icon pin-truth', '<div class="pin-dot"></div><div class="pin-label">actual city</div>'),
+    anchor: 'center'
+  }).setLngLat([lon, lat]).addTo(worldMap);
+
+  const src = worldMap.getSource('route');
   if (state.pin) {
-    guessTruthLine = L.polyline([[state.pin.lat, state.pin.lon], [lat, lon]], {
-      color: 'rgba(255,255,255,0.5)', weight: 2, dashArray: '4,4',
-    }).addTo(leafletMap);
-    leafletMap.fitBounds([[state.pin.lat, state.pin.lon], [lat, lon]], { padding: [40, 40] });
+    if (src) src.setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: [[state.pin.lon, state.pin.lat], [lon, lat]] } });
+    const b = new maplibregl.LngLatBounds();
+    b.extend([state.pin.lon, state.pin.lat]); b.extend([lon, lat]);
+    worldMap.fitBounds(b, { padding: 60, maxZoom: 7, duration: 900 });
   } else {
-    leafletMap.setView([lat, lon], 6);
+    worldMap.flyTo({ center: [lon, lat], zoom: 5 });
   }
 }
 
-// Clears markers/lines at the start of each new round.
 function resetMapForNewRound() {
-  if (guessMarker) { leafletMap.removeLayer(guessMarker); guessMarker = null; }
-  if (truthMarker) { leafletMap.removeLayer(truthMarker); truthMarker = null; }
-  if (guessTruthLine) { leafletMap.removeLayer(guessTruthLine); guessTruthLine = null; }
-  mapResetView();
+  if (guessMarker) { guessMarker.remove(); guessMarker = null; }
+  if (truthMarker) { truthMarker.remove(); truthMarker = null; }
+  const src = worldMap.getSource('route');
+  if (src) src.setData({ type: 'FeatureCollection', features: [] });
+  worldMap.jumpTo({ center: [10, 25], zoom: 1.3 });
 }
 
 // ---------- Round lifecycle ----------
 function startRound(i) {
   state.round = i;
-  state.ceiling = 1000;
-  state.zoomStep = 0;
-  state.maxZoomStepReached = 0;
+  state.step = 0;
   state.pin = null;
-  state.nameGuess = null;
-  state.nameCorrect = false;
-  state.revealedTruth = null;
-  state.revealedTruthName = null;
+  state.locked = false;
 
   const r = todaysRounds[i];
 
-  document.getElementById('round-label-left').textContent = `ROUND ${i+1} / 3`;
+  document.getElementById('round-label-left').textContent = `LEG ${i + 1} / 3`;
   const tag = document.getElementById('diff-tag');
   tag.textContent = r.difficulty.toUpperCase();
   tag.className = 'diff-tag diff-' + r.difficulty;
 
   updateRoundTrack();
-  updatePaneVisual();
-  renderImage(r.city, state.zoomStep);
-  updateZoomUI();
-  document.getElementById('ceiling-display').textContent = `cap ${state.ceiling}`;
-  document.getElementById('city-input').value = '';
-  document.getElementById('city-input').disabled = false;
+  setApproachCamera(true);
+  updateDescentUI();
+
+  const input = document.getElementById('city-input');
+  input.value = ''; input.disabled = false;
   document.getElementById('autocomplete-list').innerHTML = '';
-  document.getElementById('pin-status').textContent = '📍 Click the map to place your pin';
-  document.getElementById('pin-status').classList.remove('set');
+  const ps = document.getElementById('pin-status');
+  ps.textContent = '\u{1F4CD} Click the map to mark where you think you are';
+  ps.classList.remove('set');
   document.getElementById('lock-btn').disabled = true;
+  document.getElementById('descend-btn').disabled = false;
   document.getElementById('result-zone').innerHTML = '';
 
   resetMapForNewRound();
 }
 
-function updatePaneVisual() {
-  const pane = document.getElementById('image-pane');
-  const tag = document.getElementById('pane-tag');
-  // sharpest step reads as a "close-up" accent; any zoomed-out step reads as standard satellite
-  const isCloseup = state.zoomStep === 0;
-  pane.classList.toggle('closeup-unlocked', isCloseup);
-  tag.classList.toggle('closeup', isCloseup);
-  tag.textContent = isCloseup ? 'CLOSE-UP' : 'SATELLITE';
+function setApproachCamera(jump) {
+  const r = todaysRounds[state.round];
+  const d = DESCENT[state.step];
+  const opts = { center: [r.city.lon, r.city.lat], zoom: d.zoom, pitch: d.pitch, bearing: legBearings[state.round] };
+  if (jump) approachMap.jumpTo(opts);
+  else approachMap.flyTo({ ...opts, duration: 1100, essential: true });
 }
 
 function updateRoundTrack() {
   const track = document.getElementById('round-track');
   track.innerHTML = '';
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < todaysRounds.length; i++) {
     const dot = document.createElement('div');
     dot.className = 'round-dot ' + (i < state.round ? 'done' : (i === state.round ? 'active' : ''));
     track.appendChild(dot);
   }
 }
 
-function updateZoomUI() {
-  // fill = how much you've zoomed IN relative to the widest view, so more fill = closer/sharper
-  const pct = ((MAX_ZOOM_STEP - state.zoomStep) / MAX_ZOOM_STEP) * 100;
-  document.getElementById('zoom-fill').style.width = pct + '%';
-  document.getElementById('zoom-out-btn').disabled = state.zoomStep >= MAX_ZOOM_STEP;
-  document.getElementById('zoom-in-btn').disabled = state.zoomStep <= 0;
-  document.getElementById('ceiling-display').textContent = `cap ${state.ceiling}`;
-}
+function updateDescentUI() {
+  const d = DESCENT[state.step];
+  const atGround = state.step >= MAX_STEP;
+  const low = state.step >= 3;
 
-// Zoom in is always free and never raises the ceiling back up — only the furthest point
-// you've ever zoomed out to (maxZoomStepReached) determines your ceiling for the round.
-// Zoom out one step at a time; each new step reached costs points permanently.
-function adjustZoom(delta) {
-  const next = state.zoomStep + (delta > 0 ? -1 : 1); // "+" button zooms IN (lower step), "−" zooms OUT
-  if (next < 0 || next > MAX_ZOOM_STEP) return;
-  state.zoomStep = next;
-  if (state.zoomStep > state.maxZoomStepReached) {
-    state.maxZoomStepReached = state.zoomStep;
-    state.ceiling = ZOOM_CEILINGS[state.maxZoomStepReached];
+  document.getElementById('alt-fill').style.width = (state.step / MAX_STEP * 100) + '%';
+  document.getElementById('alt-readout').innerHTML = atGround
+    ? `${d.label} &middot; you've used the whole approach`
+    : `${d.label} &middot; call now, or descend for a clearer view`;
+  document.getElementById('ceiling-display').innerHTML = `call now &rarr; up to ${d.ceiling}`;
+
+  const btn = document.getElementById('descend-btn');
+  const cost = document.getElementById('descend-cost');
+  if (atGround) {
+    btn.disabled = true;
+    btn.innerHTML = 'On the ground';
+  } else {
+    btn.disabled = false;
+    const drop = d.ceiling - DESCENT[state.step + 1].ceiling;
+    btn.innerHTML = `Descend &darr; <span class="cost" id="descend-cost">−${drop} cap</span>`;
   }
-  updateZoomUI();
-  updatePaneVisual();
-  const r = todaysRounds[state.round];
-  renderImage(r.city, state.zoomStep);
+
+  document.getElementById('pane-tag').textContent = d.tag;
+  document.getElementById('pane-tag').classList.toggle('low', low);
+  document.getElementById('approach-pane').classList.toggle('low', low);
 }
 
-// ---------- Autocomplete ----------
+// One-way descent: step down, lower the ceiling, fly the camera lower/closer.
+function descend() {
+  if (state.locked || state.step >= MAX_STEP) return;
+  state.step++;
+  updateDescentUI();
+  setApproachCamera(false);
+}
+
+// ---------- Autocomplete (with keyboard nav) ----------
+let acSel = -1;
 function onCityInput() {
   const val = document.getElementById('city-input').value.trim().toLowerCase();
   const list = document.getElementById('autocomplete-list');
   list.innerHTML = '';
+  acSel = -1;
   if (!val) return;
-  const matches = ALL_CITY_NAMES.filter(n => n.toLowerCase().includes(val)).slice(0, 5);
-  matches.forEach(m => {
+  const matches = GAZETTEER.filter(n => n.toLowerCase().includes(val)).slice(0, 5);
+  matches.forEach((m, idx) => {
     const item = document.createElement('div');
     item.className = 'ac-item';
     item.textContent = m;
-    item.onclick = () => {
-      document.getElementById('city-input').value = m;
-      list.innerHTML = '';
-      state.nameGuess = m;
-    };
+    item.onclick = () => chooseCity(m);
+    item.dataset.idx = idx;
     list.appendChild(item);
   });
+}
+function chooseCity(m) {
+  document.getElementById('city-input').value = m;
+  document.getElementById('autocomplete-list').innerHTML = '';
+  acSel = -1;
+}
+function onCityKey(e) {
+  const items = [...document.querySelectorAll('#autocomplete-list .ac-item')];
+  if (!items.length) {
+    if (e.key === 'Enter' && !document.getElementById('lock-btn').disabled) lockGuess();
+    return;
+  }
+  if (e.key === 'ArrowDown') { e.preventDefault(); acSel = Math.min(acSel + 1, items.length - 1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); acSel = Math.max(acSel - 1, 0); }
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (acSel >= 0) chooseCity(items[acSel].textContent);
+    return;
+  } else return;
+  items.forEach((it, i) => it.classList.toggle('sel', i === acSel));
 }
 
 // ---------- Scoring ----------
@@ -898,99 +1004,158 @@ function haversine(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+// Base 0..1000 by distance, then scaled so a perfect pin at this ceiling scores
+// exactly the ceiling (e.g. spot-on at cap 700 -> 700, not 490).
+function pinScoreFor(distKm, ceiling) {
+  const base = Math.min(1000, Math.max(0, 1000 * Math.exp(-distKm / 600)));
+  return Math.round(base * (ceiling / 1000));
 }
 
-function distanceScore(distKm, cap) {
-  // 1000 at 0km, decaying to 0 by 2000km, exponential-ish falloff
-  const raw = Math.max(0, 1000 * Math.exp(-distKm / 600));
-  return Math.round(Math.min(raw, cap) * (cap / 1000));
+function norm(s) {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+}
+function nameMatches(typed, city) {
+  const t = norm(typed);
+  if (!t) return false;
+  const targets = [city.name, city.name + city.country, ...(city.aliases || [])];
+  return targets.some(x => norm(x) === t);
 }
 
 function lockGuess() {
+  if (state.locked || !state.pin) return;
+  state.locked = true;
   const r = todaysRounds[state.round];
+  const ceiling = DESCENT[state.step].ceiling;
   const dist = haversine(state.pin.lat, state.pin.lon, r.city.lat, r.city.lon);
-  const pinScore = distanceScore(dist, state.ceiling);
+  const pinScore = pinScoreFor(dist, ceiling);
 
-  const typed = document.getElementById('city-input').value.trim().toLowerCase();
-  const correctName = `${r.city.name}, ${r.city.country}`.toLowerCase();
-  const nameCorrect = typed && (typed === correctName || typed === r.city.name.toLowerCase());
-  const nameBonus = nameCorrect ? 150 : 0;
-
+  const typed = document.getElementById('city-input').value.trim();
+  const nameCorrect = nameMatches(typed, r.city);
+  const nameBonus = nameCorrect ? NAME_BONUS : 0;
   const total = pinScore + nameBonus;
-  state.scores.push({ difficulty: r.difficulty, city: r.city.name, pinScore, nameBonus, total, dist });
 
-  showResult(r.city, dist, pinScore, nameBonus, total);
+  state.scores.push({ difficulty: r.difficulty, city: r.city.name, pinScore, nameBonus, total, dist, calledAt: DESCENT[state.step].tag });
 
-  document.getElementById('zoom-in-btn').disabled = true;
-  document.getElementById('zoom-out-btn').disabled = true;
+  document.getElementById('descend-btn').disabled = true;
   document.getElementById('lock-btn').disabled = true;
   document.getElementById('city-input').disabled = true;
+  document.getElementById('autocomplete-list').innerHTML = '';
+
+  showResult(r.city, dist, pinScore, nameBonus, total);
 }
 
 function showResult(city, dist, pinScore, nameBonus, total) {
-  const zone = document.getElementById('result-zone');
   const nameWasCorrect = nameBonus > 0;
-  zone.innerHTML = `
+  document.getElementById('result-zone').innerHTML = `
     <div class="result-card">
-      <div class="result-answer-label">The correct city was</div>
+      <div class="result-answer-label">You were flying over</div>
       <div class="result-top">
         <div class="result-city">${city.name}, ${city.country}</div>
         <div class="result-pts">+${total}</div>
       </div>
       <div class="result-meta">
-        Your pin was ${dist < 1 ? 'spot on' : dist.toFixed(0) + ' km away'} (${pinScore} pts)
-        · name guess: ${nameWasCorrect ? `<span class="name-bonus">✓ correct (+${nameBonus})</span>` : '<span class="name-miss">✗ not guessed</span>'}
+        Pin ${dist < 1 ? 'spot on' : dist.toFixed(0) + ' km off'} (${pinScore} pts, called at ${DESCENT[state.step].tag.toLowerCase()})
+        &middot; ${nameWasCorrect ? `<span class="name-bonus">✓ named it (+${nameBonus})</span>` : '<span class="name-miss">✗ not named</span>'}
       </div>
       <div class="result-fact">${city.fact}</div>
-      <button class="next-btn" onclick="nextRound()">${state.round < 2 ? 'Next round →' : "See today's result →"}</button>
-    </div>
-  `;
-
-  // mark the true location and recenter the map so both pins are visible
-  state.revealedTruth = { lat: city.lat, lon: city.lon };
-  state.revealedTruthName = `${city.name}, ${city.country}`;
+      <button class="next-btn" onclick="nextRound()">${state.round < todaysRounds.length - 1 ? 'Next leg →' : "See today's logbook →"}</button>
+    </div>`;
   showTruthOnMap(city.lat, city.lon);
 }
 
 function nextRound() {
-  if (state.round < 2) {
-    startRound(state.round + 1);
-  } else {
-    showSummary();
+  if (state.round < todaysRounds.length - 1) startRound(state.round + 1);
+  else {
+    const store = recordCompletion(state.scores);
+    renderStreak();
+    showSummary(state.scores, store.streak);
   }
 }
 
-function showSummary() {
+// ---------- Summary ----------
+function rankFor(total) {
+  const pct = total / MAX_TOTAL;
+  if (pct >= 0.87) return 'Captain';
+  if (pct >= 0.70) return 'First Officer';
+  if (pct >= 0.50) return 'Cadet';
+  if (pct >= 0.28) return 'Standby';
+  return 'Lost at sea';
+}
+
+function showSummary(scores, streak) {
   document.getElementById('game-screen').style.display = 'none';
-  const total = state.scores.reduce((s, r) => s + r.total, 0);
-  const maxTotal = 3000 + 450; // 3x1000 pin cap + 3x150 name bonus, rough ceiling
+  const total = scores.reduce((s, r) => s + r.total, 0);
   const summary = document.getElementById('summary-screen');
   summary.style.display = 'block';
 
-  const shareLines = state.scores.map(s => {
-    const bar = '🟩'.repeat(Math.round(s.total/1000*5)) + '⬜'.repeat(5 - Math.round(s.total/1000*5));
-    const nameMark = s.nameBonus > 0 ? '🏷️' : '';
-    return `${s.difficulty.padEnd(6)} ${bar} ${s.total} ${nameMark}`;
+  const shareLines = scores.map(s => {
+    const filled = Math.max(0, Math.min(5, Math.round(s.total / PER_LEG_MAX * 5)));
+    const bar = '\u{1F7E9}'.repeat(filled) + '⬜'.repeat(5 - filled);
+    const nameMark = s.nameBonus > 0 ? ' \u{1F3F7}️' : '';
+    return `${s.difficulty.padEnd(6)} ${bar} ${s.total}${nameMark}`;
   }).join('\n');
+  const streakLine = streak > 1 ? `\n\u{1F525} ${streak}-day streak` : '';
+  const shareText = `CITYSPY ✈ #${DI}\n${shareLines}\n${total} pts · ${rankFor(total)}${streakLine}\ndevosebo.github.io/cityspy`;
 
   summary.innerHTML = `
     <div class="summary">
-      <div class="day-counter">DAY #${DI} — COMPLETE</div>
+      <div class="header-right" style="justify-content:center">DAY #${DI} — LANDED</div>
+      <div class="summary-rank">${rankFor(total)}</div>
       <div class="summary-total">${total} pts</div>
       <div class="summary-breakdown">
-        ${state.scores.map(s => `<div class="summary-chip">${s.difficulty}: ${s.total} ${s.nameBonus > 0 ? '<span class="name-bonus">· city named ✓</span>' : '<span class="name-miss">· city not named</span>'}</div>`).join('')}
+        ${scores.map(s => `<div class="summary-chip">${s.difficulty}: ${s.total} ${s.nameBonus > 0 ? '<span class="name-bonus">✓ named</span>' : '<span class="name-miss">unnamed</span>'}</div>`).join('')}
       </div>
-      <div class="share-box">CITYDARK #${DI}\n${shareLines}\nTotal: ${total} pts · 🏷️ = city correctly named</div>
-      <button class="next-btn" onclick="navigator.clipboard.writeText(document.querySelector('.share-box').textContent); this.textContent='Copied!'">Copy result to share</button>
-    </div>
-  `;
+      <div class="share-box">${shareText}</div>
+      <button class="next-btn" id="copy-btn">Copy result to share</button>
+    </div>`;
+  document.getElementById('copy-btn').onclick = function () {
+    navigator.clipboard.writeText(shareText).then(() => { this.textContent = 'Copied!'; });
+  };
+}
+
+// ---------- Intro ----------
+function showIntro() {
+  const overlay = document.createElement('div');
+  overlay.className = 'intro-overlay';
+  overlay.innerHTML = `
+    <div class="intro-card">
+      <h2>CITY<span>SPY</span></h2>
+      <div class="intro-tag">Name the city before wheels-down</div>
+      <div class="intro-step"><span class="ico">✈️</span><span>You're on approach to a mystery city. The view starts hazy at cruise and sharpens as you descend.</span></div>
+      <div class="intro-step"><span class="ico">⏬</span><span><b>Descending is one-way</b> and lowers your score ceiling. Call it from high up for max points — if you dare.</span></div>
+      <div class="intro-step"><span class="ico">\u{1F4CD}</span><span>Drop a pin on the world map where you think you are. Name the city too for a bonus.</span></div>
+      <div class="intro-step"><span class="ico">\u{1F30D}</span><span>Three legs a day — easy, medium, hard. Same flights for everyone.</span></div>
+      <button class="intro-start">Begin approach</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.intro-start').onclick = () => {
+    const store = loadStore(); store.seenIntro = true; saveStore(store);
+    overlay.remove();
+    startRound(0);
+  };
 }
 
 // ---------- Init ----------
 window.addEventListener('load', () => {
-  startRound(0);
+  renderStreak();
+  const store = loadStore();
+
+  // Already flew today? Show the logbook instead of letting them replay.
+  if (store.days && store.days[DI]) {
+    showSummary(store.days[DI].scores, store.streak);
+    return;
+  }
+
+  Promise.all([
+    new Promise(res => approachMap.loaded() ? res() : approachMap.once('load', res)),
+    new Promise(res => worldMap.loaded() ? res() : worldMap.once('load', res)),
+  ]).then(() => {
+    if (store.seenIntro) startRound(0);
+    else showIntro();
+  });
 });
 </script>
 </body>
