@@ -189,8 +189,8 @@
       margin: 0 auto;
       padding: 48px 24px 80px;
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 24px;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 20px;
       align-items: start;
       justify-items: center;
     }
@@ -244,13 +244,14 @@
       margin: 0 auto;
       padding: 56px 24px;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
+      row-gap: 40px;
     }
     .feat {
       padding: 0 24px;
       border-left: 1px solid var(--hair);
     }
-    .feat:first-child { border-left: none; padding-left: 0; }
+    .feat:nth-child(3n+1) { border-left: none; padding-left: 0; }
     .feat-glyph { width: 24px; height: 24px; margin-bottom: 16px; color: var(--ink); }
     .feat-t { font-size: 16px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.01em; }
     .feat-d { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
@@ -369,18 +370,22 @@
     </div>
   </section>
 
-  <!-- Three screens: Enter · Insights · Transactions -->
+  <!-- Four screens: Enter · Overview · Categories · Transactions (light + dark) -->
   <section class="stage" aria-label="App screenshots">
     <div class="phone tilt-up">
-      <img class="shot" src="assets/screen-enter.png?v=20260424" alt="Moniq — Enter screen showing a new entry with category tiles and a numeric keypad">
+      <img class="shot" src="assets/screen-enter.png?v=20260724" alt="Moniq — Enter screen in light mode showing a new entry with category tiles and a numeric keypad">
       <div class="phone-label">Enter</div>
     </div>
     <div class="phone">
-      <img class="shot" src="assets/screen-insights.png?v=20260424" alt="Moniq — Insights screen showing monthly income, expenses, savings, budget targets, and cash flow">
-      <div class="phone-label">Insights</div>
+      <img class="shot" src="assets/screen-overview.png?v=20260724" alt="Moniq — Overview screen in light mode showing monthly needs, wants, and savings against targets">
+      <div class="phone-label">Overview</div>
     </div>
     <div class="phone tilt-up">
-      <img class="shot" src="assets/screen-transactions.png?v=20260424" alt="Moniq — Transactions screen listing upcoming and past expenses for April 2026">
+      <img class="shot" src="assets/screen-categories.png?v=20260724" alt="Moniq — Categories screen in dark mode showing spending trends and category breakdowns">
+      <div class="phone-label">Categories</div>
+    </div>
+    <div class="phone">
+      <img class="shot" src="assets/screen-transactions.png?v=20260724" alt="Moniq — Transactions screen in dark mode listing upcoming and recent expenses">
       <div class="phone-label">Transactions</div>
     </div>
   </section>
@@ -406,9 +411,19 @@
         <div class="feat-d">Subscriptions, rent, regular income — set them once, forget about them.</div>
       </div>
       <div class="feat">
+        <svg class="feat-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
+        <div class="feat-t">Widgets at a glance</div>
+        <div class="feat-d">Spending and savings targets right on your Home Screen or Lock Screen.</div>
+      </div>
+      <div class="feat">
         <svg class="feat-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
         <div class="feat-t">Local & private</div>
         <div class="feat-d">No accounts. No logins. No tracking. Your data belongs to you.</div>
+      </div>
+      <div class="feat">
+        <svg class="feat-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+        <div class="feat-t">Optional iCloud sync</div>
+        <div class="feat-d">Sync across your devices if you want to. Off by default, private to you.</div>
       </div>
       <div class="feat">
         <svg class="feat-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
@@ -428,6 +443,7 @@
       <span class="pill">No ads</span>
       <span class="pill">Free forever</span>
       <span class="pill">CSV import &amp; export</span>
+      <span class="pill">Optional iCloud sync</span>
     </div>
   </section>
 </main>
